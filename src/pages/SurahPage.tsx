@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { SurahHeader } from "@/components/SurahHeader";
 import { AyahDisplay } from "@/components/AyahDisplay";
 import { SurahNavigation } from "@/components/SurahNavigation";
+import { SurahSelector } from "@/components/SurahSelector";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { useAllSurahs, useSurah } from "@/hooks/useQuranData";
@@ -41,20 +42,30 @@ const SurahPage = () => {
         <Header />
 
         <main className="flex-1">
-          {/* Breadcrumb */}
+          {/* Breadcrumb with Surah Selector */}
           <div className="border-b border-border py-3 bg-secondary/30">
             <div className="container">
-              <nav className="flex items-center gap-2 text-sm text-muted-foreground font-arabic">
-                <Link to="/" className="hover:text-primary transition-colors">الرئيسية</Link>
-                <ChevronRight className="h-4 w-4 rotate-180" />
-                <span>فهرس السور</span>
+              <div className="flex items-center justify-between gap-4">
+                <nav className="flex items-center gap-2 text-sm text-muted-foreground font-arabic">
+                  <Link to="/" className="hover:text-primary transition-colors">الرئيسية</Link>
+                  <ChevronRight className="h-4 w-4 rotate-180" />
+                  <span>فهرس السور</span>
+                  {surah && (
+                    <>
+                      <ChevronRight className="h-4 w-4 rotate-180" />
+                      <span className="text-foreground">{surah.name}</span>
+                    </>
+                  )}
+                </nav>
+                
+                {/* Surah Selector Dropdown */}
                 {surah && (
-                  <>
-                    <ChevronRight className="h-4 w-4 rotate-180" />
-                    <span className="text-foreground">{surah.name}</span>
-                  </>
+                  <SurahSelector 
+                    currentSurahNumber={surahNumber} 
+                    currentSurahName={surah.name}
+                  />
                 )}
-              </nav>
+              </div>
             </div>
           </div>
 
@@ -82,7 +93,7 @@ const SurahPage = () => {
                 {/* Verses - Mushaf-style flowing */}
                 <div className="border border-border rounded-lg bg-card overflow-hidden fade-enter" style={{ animationDelay: "0.2s" }}>
                   {surah.ayahs.map((ayah) => (
-                    <div key={ayah.number} className="border-b border-border/40 last:border-b-0">
+                    <div key={ayah.number} id={`ayah-${ayah.numberInSurah}`} className="border-b border-border/40 last:border-b-0">
                       <AyahDisplay ayah={ayah} surahNumber={surahNumber} surahName={surah.name} />
                     </div>
                   ))}
