@@ -32,6 +32,7 @@ const SearchPage = () => {
     surahList,
     totalResults,
     hasSearched,
+    dataReady,
   } = useQuranSearch({
     surahNumber: selectedSurah !== "all" ? parseInt(selectedSurah) : undefined,
     limit: 200,

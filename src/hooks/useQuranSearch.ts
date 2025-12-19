@@ -10,32 +10,49 @@ import {
   SearchOptions,
 } from '@/lib/arabic-search';
 
-// Cache for all Quran data
-let quranDataCache: { surahs: SurahDetails[]; indexed: boolean } | null = null;
+// Cache for all Quran data - stored outside hook to persist across renders
+const quranDataCache: Map<number, SurahDetails> = new Map();
 
 /**
- * Fetch and cache all Quran data for fast searching
+ * Fetch a single surah with caching
  */
-async function fetchAllQuranData(): Promise<SurahDetails[]> {
-  if (quranDataCache?.indexed) {
-    return quranDataCache.surahs;
+async function fetchSurah(surahNumber: number): Promise<SurahDetails> {
+  if (quranDataCache.has(surahNumber)) {
+    return quranDataCache.get(surahNumber)!;
+  }
+  
+  const surah = await getSurah(surahNumber);
+  quranDataCache.set(surahNumber, surah);
+  return surah;
+}
+
+/**
+ * Fetch all surahs for global search
+ */
+async function fetchAllSurahs(): Promise<SurahDetails[]> {
+  // If we have all 114, return cached
+  if (quranDataCache.size === 114) {
+    return Array.from(quranDataCache.values()).sort((a, b) => a.number - b.number);
   }
 
   const surahs = await getAllSurahs();
-  const surahsData: SurahDetails[] = [];
-
-  // Fetch surahs in batches to avoid rate limiting
-  const batchSize = 10;
+  
+  // Fetch in batches of 20 for speed
+  const batchSize = 20;
   for (let i = 0; i < surahs.length; i += batchSize) {
     const batch = surahs.slice(i, i + batchSize);
     const batchData = await Promise.all(
-      batch.map(s => getSurah(s.number))
+      batch.map(s => {
+        if (quranDataCache.has(s.number)) {
+          return quranDataCache.get(s.number)!;
+        }
+        return getSurah(s.number);
+      })
     );
-    surahsData.push(...batchData);
+    batchData.forEach(s => quranDataCache.set(s.number, s));
   }
 
-  quranDataCache = { surahs: surahsData, indexed: true };
-  return surahsData;
+  return Array.from(quranDataCache.values()).sort((a, b) => a.number - b.number);
 }
 
 /**
@@ -47,16 +64,32 @@ export function useQuranSearch(options: SearchOptions = {}) {
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch all Quran data
+  const searchInSpecificSurah = !!options.surahNumber;
+
+  // For single surah search - fetch only that surah
+  const {
+    data: singleSurah,
+    isLoading: isLoadingSingleSurah,
+    isFetching: isFetchingSingleSurah,
+  } = useQuery({
+    queryKey: ['surah-search', options.surahNumber],
+    queryFn: () => fetchSurah(options.surahNumber!),
+    enabled: searchInSpecificSurah,
+    staleTime: 1000 * 60 * 60 * 24,
+    gcTime: 1000 * 60 * 60 * 24 * 7,
+  });
+
+  // For global search - fetch all surahs
   const {
     data: allSurahs,
-    isLoading: isLoadingQuran,
-    error: loadError,
+    isLoading: isLoadingAll,
+    isFetching: isFetchingAll,
   } = useQuery({
     queryKey: ['quran-full-data'],
-    queryFn: fetchAllQuranData,
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours
-    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+    queryFn: fetchAllSurahs,
+    enabled: !searchInSpecificSurah, // Only fetch all when no specific surah
+    staleTime: 1000 * 60 * 60 * 24,
+    gcTime: 1000 * 60 * 60 * 24 * 7,
   });
 
   // Fetch surah list for dropdown
@@ -82,7 +115,7 @@ export function useQuranSearch(options: SearchOptions = {}) {
     searchTimeoutRef.current = setTimeout(() => {
       setDebouncedQuery(query);
       setIsSearching(false);
-    }, 300);
+    }, 250); // Faster debounce for better UX
 
     return () => {
       if (searchTimeoutRef.current) {
@@ -91,20 +124,41 @@ export function useQuranSearch(options: SearchOptions = {}) {
     };
   }, [query]);
 
+  // Determine which data to search
+  const searchData = useMemo((): SurahDetails[] => {
+    if (searchInSpecificSurah) {
+      return singleSurah ? [singleSurah] : [];
+    }
+    return allSurahs || [];
+  }, [searchInSpecificSurah, singleSurah, allSurahs]);
+
+  // Check if data is ready
+  const isDataReady = searchInSpecificSurah 
+    ? !!singleSurah 
+    : (allSurahs && allSurahs.length > 0);
+
+  // Loading state
+  const isLoadingData = searchInSpecificSurah
+    ? (isLoadingSingleSurah || isFetchingSingleSurah)
+    : (isLoadingAll || isFetchingAll);
+
   // Perform search
   const results = useMemo((): SearchResult[] => {
-    if (!debouncedQuery.trim() || !allSurahs) {
+    const trimmedQuery = debouncedQuery.trim();
+    
+    if (!trimmedQuery || searchData.length === 0) {
       return [];
     }
 
     const searchResults: SearchResult[] = [];
-    const surahsToSearch = options.surahNumber
-      ? allSurahs.filter(s => s.number === options.surahNumber)
-      : allSurahs;
 
-    for (const surah of surahsToSearch) {
+    for (const surah of searchData) {
+      if (!surah || !surah.ayahs) continue;
+      
       for (const ayah of surah.ayahs) {
-        const { matches, score, matchType } = matchesArabicQuery(ayah.text, debouncedQuery);
+        if (!ayah || !ayah.text) continue;
+        
+        const { matches, score, matchType } = matchesArabicQuery(ayah.text, trimmedQuery);
 
         if (matches) {
           searchResults.push({
@@ -112,7 +166,7 @@ export function useQuranSearch(options: SearchOptions = {}) {
             surahName: surah.name,
             ayahNumber: ayah.numberInSurah,
             text: ayah.text,
-            highlightedText: highlightMatches(ayah.text, debouncedQuery),
+            highlightedText: highlightMatches(ayah.text, trimmedQuery),
             score,
             matchType,
           });
@@ -128,7 +182,7 @@ export function useQuranSearch(options: SearchOptions = {}) {
         return a.ayahNumber - b.ayahNumber;
       })
       .slice(0, options.limit || 100);
-  }, [debouncedQuery, allSurahs, options.surahNumber, options.limit]);
+  }, [debouncedQuery, searchData, options.limit]);
 
   // Get suggestions
   const suggestions = useMemo(() => {
@@ -147,18 +201,23 @@ export function useQuranSearch(options: SearchOptions = {}) {
     setDebouncedQuery('');
   }, []);
 
+  // Has the user searched and is data ready?
+  const hasSearched = !!debouncedQuery.trim() && isDataReady;
+
   return {
     query,
     search,
     clearSearch,
     results,
     suggestions,
-    isSearching: isSearching || (!!debouncedQuery && isLoadingQuran),
-    isLoadingQuran,
-    loadError,
+    isSearching: isSearching || (!!debouncedQuery.trim() && isLoadingData),
+    isLoadingQuran: isLoadingData,
+    loadError: null,
     surahList,
     totalResults: results.length,
-    hasSearched: !!debouncedQuery.trim(),
+    hasSearched,
+    dataReady: isDataReady,
+    searchInSpecificSurah,
   };
 }
 
@@ -166,19 +225,9 @@ export function useQuranSearch(options: SearchOptions = {}) {
  * Hook for getting autocomplete suggestions
  */
 export function useQuranAutocomplete() {
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const { data: allSurahs } = useQuery({
-    queryKey: ['quran-full-data'],
-    queryFn: fetchAllQuranData,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
-
   // Common Quran words for autocomplete
   const commonWords = useMemo(() => {
-    const words = new Set<string>();
-    
-    // Add common Quran words
-    const frequentWords = [
+    return [
       'الله', 'الرحمن', 'الرحيم', 'رب', 'العالمين',
       'الصلاة', 'الزكاة', 'المؤمنين', 'الكافرين',
       'الجنة', 'النار', 'الصراط', 'المستقيم',
@@ -186,9 +235,6 @@ export function useQuranAutocomplete() {
       'اهدنا', 'أنعمت', 'المغضوب', 'الضالين',
       'قل', 'آمنوا', 'كفروا', 'عملوا', 'الصالحات',
     ];
-    
-    frequentWords.forEach(w => words.add(w));
-    return Array.from(words);
   }, []);
 
   const getAutocompleteSuggestions = useCallback((query: string): string[] => {
