@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Surah, getSurahSlug, toArabicNumerals, getRevelationTypeArabic } from "@/lib/quran-api";
-import { ChevronLeft } from "lucide-react";
 
 interface SurahCardProps {
   surah: Surah;
@@ -11,24 +10,29 @@ export function SurahCard({ surah, index }: SurahCardProps) {
   return (
     <Link
       to={`/surah/${getSurahSlug(surah)}`}
-      className="group block"
-      style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
+      className="group block fade-enter"
+      style={{ animationDelay: `${Math.min(index * 25, 250)}ms` }}
     >
-      <div className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border card-hover hover:border-primary/30 animate-fade-in">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-arabic font-bold text-lg shadow-md shadow-primary/20">
+      <div className="flex items-center gap-5 py-4 px-5 rounded-lg bg-card border border-border/50 soft-hover hover:border-border">
+        {/* Surah Number */}
+        <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-full bg-primary/10 text-primary font-arabic text-lg font-bold">
           {toArabicNumerals(surah.number)}
         </div>
-        <div className="flex-1 min-w-0 text-right">
-          <h3 className="font-arabic text-xl font-bold text-foreground surah-name group-hover:text-primary transition-colors">
+
+        {/* Surah Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-arabic text-xl font-bold text-foreground surah-title group-hover:text-primary transition-colors">
             {surah.name}
           </h3>
-          <div className="flex items-center gap-2 mt-1 justify-end">
-            <span className="text-sm text-muted-foreground">{toArabicNumerals(surah.numberOfAyahs)} آية</span>
-            <span className="text-muted-foreground/50">•</span>
-            <span className="text-sm text-muted-foreground">{getRevelationTypeArabic(surah.revelationType)}</span>
-          </div>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {toArabicNumerals(surah.numberOfAyahs)} آية · {getRevelationTypeArabic(surah.revelationType)}
+          </p>
         </div>
-        <ChevronLeft className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:-translate-x-1 transition-all" />
+
+        {/* English name - subtle */}
+        <div className="text-left hidden sm:block">
+          <p className="text-sm text-muted-foreground/70">{surah.englishName}</p>
+        </div>
       </div>
     </Link>
   );
