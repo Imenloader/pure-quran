@@ -7,6 +7,8 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { TafsirTabs } from "@/components/TafsirTabs";
 import { AudioPlayer } from "@/components/AudioPlayer";
+import { SurahSelector } from "@/components/SurahSelector";
+import { AyahSelector } from "@/components/AyahSelector";
 import { Button } from "@/components/ui/button";
 import { useSurah } from "@/hooks/useQuranData";
 import { toArabicNumerals, getSurahSlug } from "@/lib/quran-api";
@@ -64,25 +66,43 @@ const AyahPage = () => {
         <Header />
 
         <main className="flex-1">
-          {/* Breadcrumb - Enhanced */}
-          <div className="border-b border-border py-4 bg-gradient-to-r from-secondary/50 to-transparent">
+          {/* Breadcrumb with Navigation Selectors */}
+          <div className="border-b border-border py-3 bg-gradient-to-r from-secondary/50 to-transparent">
             <div className="container">
-              <nav className="flex items-center gap-2 text-sm text-muted-foreground font-arabic">
-                <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1.5">
-                  <BookOpen className="h-3.5 w-3.5" />
-                  الرئيسية
-                </Link>
-                <ChevronRight className="h-4 w-4 rotate-180 opacity-40" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                {/* Breadcrumb */}
+                <nav className="flex items-center gap-2 text-sm text-muted-foreground font-arabic">
+                  <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1.5">
+                    <BookOpen className="h-3.5 w-3.5" />
+                    الرئيسية
+                  </Link>
+                  <ChevronRight className="h-4 w-4 rotate-180 opacity-40" />
+                  {surah && (
+                    <>
+                      <Link to={`/surah/${getSurahSlug(surah)}`} className="hover:text-primary transition-colors">
+                        {surah.name}
+                      </Link>
+                      <ChevronRight className="h-4 w-4 rotate-180 opacity-40" />
+                    </>
+                  )}
+                  <span className="text-foreground font-semibold">الآية {toArabicNumerals(ayahNumber)}</span>
+                </nav>
+                
+                {/* Navigation Selectors */}
                 {surah && (
-                  <>
-                    <Link to={`/surah/${getSurahSlug(surah)}`} className="hover:text-primary transition-colors">
-                      {surah.name}
-                    </Link>
-                    <ChevronRight className="h-4 w-4 rotate-180 opacity-40" />
-                  </>
+                  <div className="flex items-center gap-2">
+                    <SurahSelector 
+                      currentSurahNumber={surahNumber} 
+                      currentSurahName={surah.name}
+                    />
+                    <AyahSelector 
+                      surahNumber={surahNumber}
+                      currentAyahNumber={ayahNumber}
+                      totalAyahs={surah.numberOfAyahs}
+                    />
+                  </div>
                 )}
-                <span className="text-foreground font-semibold">الآية {toArabicNumerals(ayahNumber)}</span>
-              </nav>
+              </div>
             </div>
           </div>
 
@@ -92,7 +112,7 @@ const AyahPage = () => {
             ) : error ? (
               <ErrorMessage message="فشل تحميل الآية" onRetry={() => refetch()} />
             ) : !isValidAyah || !ayah || !surah ? (
-              <Navigate to={`/surah/${getSurahSlug({ number: surahNumber, name: "", englishName: `surah-${surahNumber}`, englishNameTranslation: "", numberOfAyahs: 0, revelationType: "Meccan" })}`} replace />
+              <Navigate to={`/surah/${surahNumber}`} replace />
             ) : (
               <article className="max-w-4xl mx-auto">
                 {/* Page Header */}
