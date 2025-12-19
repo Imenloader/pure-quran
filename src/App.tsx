@@ -8,6 +8,7 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import Index from "./pages/Index";
 import SurahPage from "./pages/SurahPage";
 import AyahPage from "./pages/AyahPage";
+import SearchPage from "./pages/SearchPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -29,6 +30,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/search" element={<SearchPage />} />
               <Route path="/surah/:slug" element={<SurahPage />} />
               <Route path="/surah/:surahNumber/ayah/:ayahNumber" element={<AyahPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
