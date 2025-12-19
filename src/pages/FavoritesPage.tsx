@@ -1,29 +1,15 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Heart, Trash2, Download, ChevronRight } from "lucide-react";
+import { Heart, Trash2, ChevronRight } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { toArabicNumerals } from "@/lib/quran-api";
-import { generateFavoritesPDF } from "@/lib/pdf-generator";
 import { toast } from "sonner";
 
 const FavoritesPage = () => {
   const { favorites, removeFavorite, clearFavorites } = useFavorites();
-
-  const handleDownloadPDF = async () => {
-    if (favorites.length === 0) {
-      toast.error("لا توجد آيات مفضلة لتحميلها");
-      return;
-    }
-    try {
-      await generateFavoritesPDF(favorites);
-      toast.success("تم تحميل الملف بنجاح");
-    } catch {
-      toast.error("فشل تحميل الملف");
-    }
-  };
 
   const handleClearAll = () => {
     if (window.confirm("هل أنت متأكد من حذف جميع المفضلة؟")) {
@@ -63,16 +49,10 @@ const FavoritesPage = () => {
                 </div>
                 
                 {favorites.length > 0 && (
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="gap-2 font-arabic">
-                      <Download className="h-4 w-4" />
-                      <span className="hidden sm:inline">تحميل</span>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleClearAll} className="gap-2 text-destructive hover:text-destructive font-arabic">
-                      <Trash2 className="h-4 w-4" />
-                      <span className="hidden sm:inline">حذف الكل</span>
-                    </Button>
-                  </div>
+                  <Button variant="outline" size="sm" onClick={handleClearAll} className="gap-2 text-destructive hover:text-destructive font-arabic">
+                    <Trash2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">حذف الكل</span>
+                  </Button>
                 )}
               </div>
 
