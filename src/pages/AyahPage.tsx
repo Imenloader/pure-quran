@@ -1,4 +1,5 @@
 import { useParams, Navigate, Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { ChevronLeft, ChevronRight, BookOpen, Volume2 } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -30,6 +31,20 @@ const AyahPage = () => {
 
   const ayah = surah?.ayahs.find((a) => a.numberInSurah === ayahNumber);
   const isValidAyah = surah && ayahNumber >= 1 && ayahNumber <= surah.numberOfAyahs;
+
+  // Save reading position when viewing an ayah
+  useEffect(() => {
+    if (surah && ayah && isValidAyah) {
+      const position = {
+        surahNumber,
+        surahName: surah.name,
+        ayahNumber,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('lastReadPosition', JSON.stringify(position));
+      localStorage.setItem('lastVisitedSurah', surahNumber.toString());
+    }
+  }, [surah, ayah, surahNumber, ayahNumber, isValidAyah]);
 
   // Navigation logic
   const hasPrevAyah = ayahNumber > 1;

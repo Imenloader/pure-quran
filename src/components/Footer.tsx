@@ -65,26 +65,36 @@ export function Footer() {
               <Moon className="h-4 w-4 text-gold" />
               التفاسير المتوفرة
             </h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
-                تفسير ابن كثير
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link to="/surah/1?tafsir=ar-tafsir-ibn-kathir" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold/50 group-hover:bg-gold transition-colors" />
+                  تفسير ابن كثير
+                </Link>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
-                تفسير السعدي
+              <li>
+                <Link to="/surah/1?tafsir=ar-tafsir-al-sa3di" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold/50 group-hover:bg-gold transition-colors" />
+                  تفسير السعدي
+                </Link>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
-                تفسير الطبري
+              <li>
+                <Link to="/surah/1?tafsir=ar-tafseer-al-tabari" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold/50 group-hover:bg-gold transition-colors" />
+                  تفسير الطبري
+                </Link>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
-                تفسير القرطبي
+              <li>
+                <Link to="/surah/1?tafsir=ar-tafseer-al-qurtubi" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold/50 group-hover:bg-gold transition-colors" />
+                  تفسير القرطبي
+                </Link>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
-                التفسير الميسر
+              <li>
+                <Link to="/surah/1?tafsir=ar-tafsir-al-muyassar" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold/50 group-hover:bg-gold transition-colors" />
+                  التفسير الميسر
+                </Link>
               </li>
             </ul>
           </div>
