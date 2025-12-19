@@ -61,15 +61,15 @@ const AyahPage = () => {
       <Helmet>
         <title>
           {surah && ayah
-            ? `الآية ${toArabicNumerals(ayahNumber)} - سورة ${surah.name} | القرآن الكريم`
+            ? `الآية ${toArabicNumerals(ayahNumber)} - ${surah.name}`
             : "القرآن الكريم"}
         </title>
         <meta
           name="description"
           content={
             surah && ayah
-              ? `قراءة وتفسير الآية ${ayahNumber} من سورة ${surah.englishName} (${surah.name})`
-              : "Read the Holy Quran with Tafsir"
+              ? `تفسير الآية ${ayahNumber} من ${surah.name}`
+              : "القرآن الكريم مع التفسير"
           }
         />
         <link rel="canonical" href={`/surah/${surahNumber}/ayah/${ayahNumber}`} />
@@ -90,32 +90,35 @@ const AyahPage = () => {
             <Navigate to={`/surah/${getSurahSlug({ number: surahNumber, name: "", englishName: `surah-${surahNumber}`, englishNameTranslation: "", numberOfAyahs: 0, revelationType: "Meccan" })}`} replace />
           ) : (
             <article className="max-w-4xl mx-auto">
-              {/* Breadcrumb / Back Navigation */}
+              {/* Breadcrumb */}
               <div className="mb-6">
                 <Link
                   to={`/surah/${getSurahSlug(surah)}`}
-                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-arabic"
                 >
                   <ArrowRight className="h-4 w-4" />
-                  <span className="font-arabic">العودة إلى سورة {surah.name}</span>
+                  <span>العودة إلى {surah.name}</span>
                 </Link>
               </div>
 
               {/* Surah & Ayah Info */}
-              <div className="text-center mb-6">
-                <p className="text-sm text-muted-foreground mb-1">
-                  {surah.englishName} • {surah.englishNameTranslation}
-                </p>
-                <h1 className="font-arabic text-2xl md:text-3xl font-bold text-primary surah-name">
-                  سورة {surah.name}
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="gold-line w-12" />
+                  <span className="text-accent">✦</span>
+                  <div className="gold-line w-12" />
+                </div>
+                
+                <h1 className="font-arabic text-2xl md:text-3xl font-bold text-primary surah-name mb-2">
+                  {surah.name}
                 </h1>
-                <p className="text-muted-foreground font-arabic mt-1">
+                <p className="text-muted-foreground font-arabic text-lg">
                   الآية {toArabicNumerals(ayahNumber)} من {toArabicNumerals(surah.numberOfAyahs)}
                 </p>
               </div>
 
-              {/* Ayah Display - Large & Prominent */}
-              <div className="bg-card rounded-xl p-6 md:p-10 mb-8 border border-border shadow-sm">
+              {/* Ayah Display */}
+              <div className="bg-card rounded-2xl p-6 md:p-10 mb-8 border border-border shadow-sm">
                 <p className="font-arabic arabic-text ayah-text text-center leading-loose">
                   {ayah.text}
                   <span className="ayah-number mx-2 inline-flex items-center justify-center">
@@ -125,23 +128,23 @@ const AyahPage = () => {
               </div>
 
               {/* Ayah Navigation */}
-              <div className="flex items-center justify-between mb-8">
-                {getPrevLink() ? (
-                  <Link to={getPrevLink()!}>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <ChevronRight className="h-4 w-4" />
-                      <span className="font-arabic">السابقة</span>
+              <div className="flex items-center justify-between mb-10">
+                {getNextLink() ? (
+                  <Link to={getNextLink()!}>
+                    <Button variant="outline" size="sm" className="gap-2 font-arabic">
+                      <span>التالية</span>
+                      <ChevronLeft className="h-4 w-4" />
                     </Button>
                   </Link>
                 ) : (
                   <div />
                 )}
 
-                {getNextLink() ? (
-                  <Link to={getNextLink()!}>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <span className="font-arabic">التالية</span>
-                      <ChevronLeft className="h-4 w-4" />
+                {getPrevLink() ? (
+                  <Link to={getPrevLink()!}>
+                    <Button variant="outline" size="sm" className="gap-2 font-arabic">
+                      <ChevronRight className="h-4 w-4" />
+                      <span>السابقة</span>
                     </Button>
                   </Link>
                 ) : (
@@ -150,10 +153,7 @@ const AyahPage = () => {
               </div>
 
               {/* Tafsir Section */}
-              <section className="mt-8">
-                <h2 className="font-arabic text-xl font-bold mb-4 text-right">التفسير</h2>
-                <TafsirTabs surahNumber={surahNumber} ayahNumber={ayahNumber} />
-              </section>
+              <TafsirTabs surahNumber={surahNumber} ayahNumber={ayahNumber} />
             </article>
           )}
         </main>

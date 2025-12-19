@@ -9,7 +9,7 @@ interface AyahDisplayProps {
 
 export function AyahDisplay({ ayah, surahNumber, showBismillah = false }: AyahDisplayProps) {
   return (
-    <div className="animate-fade-in" style={{ animationDelay: `${Math.min(ayah.numberInSurah * 20, 500)}ms` }}>
+    <div className="animate-fade-in" style={{ animationDelay: `${Math.min(ayah.numberInSurah * 15, 400)}ms` }}>
       {showBismillah && ayah.numberInSurah === 1 && (
         <div className="bismillah font-arabic arabic-text">
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
@@ -18,11 +18,11 @@ export function AyahDisplay({ ayah, surahNumber, showBismillah = false }: AyahDi
       
       <Link
         to={`/surah/${surahNumber}/ayah/${ayah.numberInSurah}`}
-        className="block py-4 border-b border-verse-separator last:border-b-0 hover:bg-surah-hover rounded-lg px-3 -mx-3 transition-colors cursor-pointer group"
+        className="block py-5 px-4 -mx-4 border-b border-verse-separator last:border-b-0 hover:bg-surah-hover rounded-lg transition-all duration-200 cursor-pointer group"
       >
-        <p className="font-arabic arabic-text ayah-text leading-loose group-hover:text-primary/90 transition-colors">
+        <p className="font-arabic arabic-text ayah-text leading-loose text-foreground group-hover:text-foreground/90 transition-colors">
           {ayah.text}
-          <span className="ayah-number mx-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+          <span className="ayah-number group-hover:scale-110 transition-transform inline-flex">
             {toArabicNumerals(ayah.numberInSurah)}
           </span>
         </p>

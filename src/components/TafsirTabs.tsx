@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
-import { getTafsirForAyah, POPULAR_TAFSIRS } from "@/lib/quran-api";
-import { useSettings } from "@/contexts/SettingsContext";
+import { AlertCircle, BookOpen } from "lucide-react";
+import { getTafsirForAyah, ARABIC_TAFSIRS } from "@/lib/quran-api";
 
 interface TafsirTabsProps {
   surahNumber: number;
@@ -12,39 +11,44 @@ interface TafsirTabsProps {
 }
 
 export function TafsirTabs({ surahNumber, ayahNumber }: TafsirTabsProps) {
-  const { defaultTafsirIds } = useSettings();
-  const [activeTab, setActiveTab] = useState<string>(String(defaultTafsirIds[0] || POPULAR_TAFSIRS[0].id));
-
-  // Get tafsirs to display
-  const tafsirsToShow = POPULAR_TAFSIRS.filter(
-    (t) => defaultTafsirIds.includes(t.id) || POPULAR_TAFSIRS.slice(0, 3).some((p) => p.id === t.id)
-  ).slice(0, 4);
+  const [activeTab, setActiveTab] = useState<string>(String(ARABIC_TAFSIRS[0].id));
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" dir="rtl">
-      <TabsList className="w-full justify-start gap-1 h-auto flex-wrap bg-muted/50 p-1">
-        {tafsirsToShow.map((tafsir) => (
-          <TabsTrigger
-            key={tafsir.id}
-            value={String(tafsir.id)}
-            className="font-arabic text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            {tafsir.name}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+    <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+      <div className="bg-gradient-to-l from-primary/10 to-transparent p-4 border-b border-border">
+        <div className="flex items-center gap-2 justify-end">
+          <h3 className="font-arabic font-bold text-lg">التفسير</h3>
+          <BookOpen className="h-5 w-5 text-primary" />
+        </div>
+      </div>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" dir="rtl">
+        <div className="border-b border-border bg-muted/30">
+          <TabsList className="w-full justify-start gap-0 h-auto bg-transparent p-0 rounded-none">
+            {ARABIC_TAFSIRS.map((tafsir) => (
+              <TabsTrigger
+                key={tafsir.id}
+                value={String(tafsir.id)}
+                className="font-arabic text-sm py-3 px-4 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-background data-[state=active]:text-primary transition-all"
+              >
+                {tafsir.author}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
-      {tafsirsToShow.map((tafsir) => (
-        <TabsContent key={tafsir.id} value={String(tafsir.id)} className="mt-4">
-          <TafsirContent
-            surahNumber={surahNumber}
-            ayahNumber={ayahNumber}
-            tafsirId={tafsir.id}
-            tafsirName={tafsir.name}
-          />
-        </TabsContent>
-      ))}
-    </Tabs>
+        {ARABIC_TAFSIRS.map((tafsir) => (
+          <TabsContent key={tafsir.id} value={String(tafsir.id)} className="mt-0 p-0">
+            <TafsirContent
+              surahNumber={surahNumber}
+              ayahNumber={ayahNumber}
+              tafsirId={tafsir.id}
+              tafsirName={tafsir.name}
+            />
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
   );
 }
 
@@ -69,39 +73,39 @@ function TafsirContent({ surahNumber, ayahNumber, tafsirId, tafsirName }: Tafsir
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-[90%]" />
-        <Skeleton className="h-4 w-[80%]" />
-        <Skeleton className="h-4 w-[85%]" />
+      <div className="p-6 space-y-4">
+        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-[95%]" />
+        <Skeleton className="h-5 w-[90%]" />
+        <Skeleton className="h-5 w-[85%]" />
+        <Skeleton className="h-5 w-[92%]" />
       </div>
     );
   }
 
   if (error || !tafsir) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground p-4 bg-muted/30 rounded-lg">
+      <div className="flex items-center gap-3 text-muted-foreground p-8 justify-center">
+        <span className="font-arabic text-sm">لا يتوفر {tafsirName} لهذه الآية حالياً</span>
         <AlertCircle className="h-5 w-5" />
-        <span className="font-arabic text-sm">لا يتوفر تفسير {tafsirName} لهذه الآية حالياً</span>
       </div>
     );
   }
 
-  // Strip HTML and clean up the text
+  // Clean up the text - remove HTML tags for cleaner display
   const cleanText = tafsir.text
-    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;/g, " ")
     .replace(/&quot;/g, '"')
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
 
   return (
-    <div className="bg-card rounded-lg p-4 md:p-6 border border-border">
-      <div
-        className="font-arabic text-right leading-relaxed text-foreground/90"
-        style={{ lineHeight: "2" }}
-      >
+    <div className="p-6 md:p-8">
+      <div className="tafsir-text text-foreground/90 leading-relaxed">
         {cleanText}
       </div>
     </div>
