@@ -6,20 +6,18 @@ interface ErrorMessageProps {
   onRetry?: () => void;
 }
 
-export function ErrorMessage({ 
-  message = "حدث خطأ أثناء تحميل البيانات", 
-  onRetry 
+export function ErrorMessage({
+  message = "حدث خطأ",
+  onRetry,
 }: ErrorMessageProps) {
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
-      <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
-        <AlertCircle className="h-8 w-8 text-destructive" />
-      </div>
-      <p className="text-foreground font-arabic text-lg">{message}</p>
+      <AlertCircle className="h-8 w-8 text-destructive/60" />
+      <p className="text-muted-foreground font-arabic text-sm">{message}</p>
       {onRetry && (
-        <Button onClick={onRetry} variant="outline" className="gap-2">
-          <RefreshCw className="h-4 w-4" />
-          <span className="font-arabic">إعادة المحاولة</span>
+        <Button onClick={onRetry} variant="outline" size="sm" className="gap-2 font-arabic">
+          <RefreshCw className="h-3 w-3" />
+          إعادة المحاولة
         </Button>
       )}
     </div>

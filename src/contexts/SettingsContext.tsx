@@ -9,8 +9,6 @@ interface SettingsState {
   lineSpacing: LineSpacing;
   theme: Theme;
   defaultTafsirIds: number[];
-  showTranslation: boolean;
-  defaultTranslationId: number;
 }
 
 interface SettingsContextType extends SettingsState {
@@ -18,17 +16,13 @@ interface SettingsContextType extends SettingsState {
   setLineSpacing: (spacing: LineSpacing) => void;
   setTheme: (theme: Theme) => void;
   setDefaultTafsirIds: (ids: number[]) => void;
-  toggleTranslation: () => void;
-  setDefaultTranslationId: (id: number) => void;
 }
 
 const defaultSettings: SettingsState = {
   fontSize: "medium",
   lineSpacing: "relaxed",
   theme: "light",
-  defaultTafsirIds: [169, 93], // Ibn Kathir Arabic & English
-  showTranslation: false,
-  defaultTranslationId: 131, // Sahih International
+  defaultTafsirIds: [169, 170],
 };
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -43,7 +37,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  // Apply theme to document
+  // Apply theme
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
@@ -61,27 +55,27 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("quran-settings", JSON.stringify(settings));
   }, [settings]);
 
-  // Apply font size CSS variable
+  // Apply font size
   useEffect(() => {
     const root = document.documentElement;
     const sizes = {
       small: "1.5rem",
-      medium: "1.75rem",
+      medium: "1.875rem",
       large: "2.25rem",
       xlarge: "2.75rem",
     };
-    root.style.setProperty("--ayah-font-size", sizes[settings.fontSize]);
+    root.style.setProperty("--quran-font-size", sizes[settings.fontSize]);
   }, [settings.fontSize]);
 
-  // Apply line spacing CSS variable
+  // Apply line spacing
   useEffect(() => {
     const root = document.documentElement;
     const spacings = {
-      normal: "2",
-      relaxed: "2.5",
-      loose: "3",
+      normal: "2.4",
+      relaxed: "2.8",
+      loose: "3.2",
     };
-    root.style.setProperty("--ayah-line-height", spacings[settings.lineSpacing]);
+    root.style.setProperty("--quran-line-height", spacings[settings.lineSpacing]);
   }, [settings.lineSpacing]);
 
   const value: SettingsContextType = {
@@ -90,8 +84,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setLineSpacing: (lineSpacing) => setSettings((s) => ({ ...s, lineSpacing })),
     setTheme: (theme) => setSettings((s) => ({ ...s, theme })),
     setDefaultTafsirIds: (defaultTafsirIds) => setSettings((s) => ({ ...s, defaultTafsirIds })),
-    toggleTranslation: () => setSettings((s) => ({ ...s, showTranslation: !s.showTranslation })),
-    setDefaultTranslationId: (defaultTranslationId) => setSettings((s) => ({ ...s, defaultTranslationId })),
   };
 
   return (

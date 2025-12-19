@@ -7,13 +7,13 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "1rem",
+      padding: "1.25rem",
       screens: {
         sm: "640px",
         md: "768px",
-        lg: "900px",
-        xl: "1000px",
-        "2xl": "1100px",
+        lg: "860px",
+        xl: "920px",
+        "2xl": "980px",
       },
     },
     extend: {
@@ -61,19 +61,16 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        surah: {
-          hover: "hsl(var(--surah-card-hover))",
-        },
-        ayah: {
-          number: "hsl(var(--ayah-number))",
-        },
         verse: {
-          separator: "hsl(var(--verse-separator))",
+          bg: "hsl(var(--verse-bg))",
+          hover: "hsl(var(--verse-hover))",
         },
+        gold: "hsl(var(--gold))",
       },
       fontFamily: {
-        arabic: ["Amiri", "Noto Naskh Arabic", "serif"],
-        serif: ["Amiri", "Georgia", "serif"],
+        quran: ["'Amiri Quran'", "'Amiri'", "serif"],
+        arabic: ["'Amiri'", "serif"],
+        serif: ["'Amiri'", "Georgia", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -89,20 +86,10 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "fade-in": {
-          from: { opacity: "0", transform: "translateY(10px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        "fade-in-up": {
-          from: { opacity: "0", transform: "translateY(20px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
-        "fade-in-up": "fade-in-up 0.4s ease-out",
       },
     },
   },

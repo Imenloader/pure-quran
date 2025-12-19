@@ -8,9 +8,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useSettings, FontSize, LineSpacing, Theme } from "@/contexts/SettingsContext";
+import { cn } from "@/lib/utils";
 
 export function SettingsSheet() {
   const { fontSize, lineSpacing, theme, setFontSize, setLineSpacing, setTheme } = useSettings();
@@ -18,133 +18,101 @@ export function SettingsSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
-          <Settings className="h-5 w-5" />
-          <span className="sr-only">الإعدادات</span>
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+          <Settings className="h-4 w-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-80" dir="rtl">
+      <SheetContent side="right" className="w-80 bg-background" dir="rtl">
         <SheetHeader>
-          <SheetTitle className="font-arabic text-right text-xl">الإعدادات</SheetTitle>
+          <SheetTitle className="font-arabic text-right text-lg">الإعدادات</SheetTitle>
         </SheetHeader>
 
         <div className="mt-8 space-y-8">
           {/* Theme */}
           <div className="space-y-4">
-            <Label className="font-arabic text-base font-semibold flex items-center gap-2">
-              المظهر
-            </Label>
-            <RadioGroup
-              value={theme}
-              onValueChange={(v) => setTheme(v as Theme)}
-              className="grid grid-cols-3 gap-3"
-            >
-              <Label
-                htmlFor="light"
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                  theme === "light" ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"
-                }`}
-              >
-                <RadioGroupItem value="light" id="light" className="sr-only" />
-                <Sun className="h-6 w-6" />
-                <span className="text-sm font-arabic">فاتح</span>
-              </Label>
-              <Label
-                htmlFor="dark"
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                  theme === "dark" ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"
-                }`}
-              >
-                <RadioGroupItem value="dark" id="dark" className="sr-only" />
-                <Moon className="h-6 w-6" />
-                <span className="text-sm font-arabic">داكن</span>
-              </Label>
-              <Label
-                htmlFor="system"
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                  theme === "system" ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"
-                }`}
-              >
-                <RadioGroupItem value="system" id="system" className="sr-only" />
-                <Monitor className="h-6 w-6" />
-                <span className="text-sm font-arabic">تلقائي</span>
-              </Label>
-            </RadioGroup>
+            <Label className="font-arabic text-sm font-medium text-foreground">المظهر</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { value: "light" as Theme, label: "فاتح", icon: Sun },
+                { value: "dark" as Theme, label: "داكن", icon: Moon },
+                { value: "system" as Theme, label: "تلقائي", icon: Monitor },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setTheme(option.value)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                    theme === option.value
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
+                  )}
+                >
+                  <option.icon className="h-5 w-5" />
+                  <span className="text-xs font-arabic">{option.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <Separator />
 
           {/* Font Size */}
           <div className="space-y-4">
-            <Label className="font-arabic text-base font-semibold flex items-center gap-2">
-              <Type className="h-5 w-5" />
-              حجم الخط
-            </Label>
-            <RadioGroup
-              value={fontSize}
-              onValueChange={(v) => setFontSize(v as FontSize)}
-              className="grid grid-cols-4 gap-2"
-            >
+            <div className="flex items-center gap-2">
+              <Type className="h-4 w-4 text-muted-foreground" />
+              <Label className="font-arabic text-sm font-medium text-foreground">حجم الخط</Label>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
               {[
-                { value: "small", label: "صغير", size: "1rem" },
-                { value: "medium", label: "متوسط", size: "1.25rem" },
-                { value: "large", label: "كبير", size: "1.5rem" },
-                { value: "xlarge", label: "أكبر", size: "1.75rem" },
+                { value: "small" as FontSize, label: "صغير" },
+                { value: "medium" as FontSize, label: "متوسط" },
+                { value: "large" as FontSize, label: "كبير" },
+                { value: "xlarge" as FontSize, label: "أكبر" },
               ].map((option) => (
-                <Label
+                <button
                   key={option.value}
-                  htmlFor={`font-${option.value}`}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  onClick={() => setFontSize(option.value)}
+                  className={cn(
+                    "py-2 px-3 rounded-md text-xs font-arabic transition-all",
                     fontSize === option.value
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-border hover:border-primary/50"
-                  }`}
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
                 >
-                  <RadioGroupItem value={option.value} id={`font-${option.value}`} className="sr-only" />
-                  <span className="font-arabic" style={{ fontSize: option.size }}>أ</span>
-                  <span className="text-[10px] text-muted-foreground font-arabic">{option.label}</span>
-                </Label>
+                  {option.label}
+                </button>
               ))}
-            </RadioGroup>
+            </div>
           </div>
 
           <Separator />
 
           {/* Line Spacing */}
           <div className="space-y-4">
-            <Label className="font-arabic text-base font-semibold flex items-center gap-2">
-              <AlignJustify className="h-5 w-5" />
-              تباعد الأسطر
-            </Label>
-            <RadioGroup
-              value={lineSpacing}
-              onValueChange={(v) => setLineSpacing(v as LineSpacing)}
-              className="grid grid-cols-3 gap-3"
-            >
+            <div className="flex items-center gap-2">
+              <AlignJustify className="h-4 w-4 text-muted-foreground" />
+              <Label className="font-arabic text-sm font-medium text-foreground">تباعد الأسطر</Label>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
               {[
-                { value: "normal", label: "عادي", gap: "2px" },
-                { value: "relaxed", label: "مريح", gap: "4px" },
-                { value: "loose", label: "واسع", gap: "6px" },
+                { value: "normal" as LineSpacing, label: "عادي" },
+                { value: "relaxed" as LineSpacing, label: "مريح" },
+                { value: "loose" as LineSpacing, label: "واسع" },
               ].map((option) => (
-                <Label
+                <button
                   key={option.value}
-                  htmlFor={`spacing-${option.value}`}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  onClick={() => setLineSpacing(option.value)}
+                  className={cn(
+                    "py-2 px-3 rounded-md text-xs font-arabic transition-all",
                     lineSpacing === option.value
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-border hover:border-primary/50"
-                  }`}
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
                 >
-                  <RadioGroupItem value={option.value} id={`spacing-${option.value}`} className="sr-only" />
-                  <div className="flex flex-col gap-0.5">
-                    <div className="w-10 h-0.5 bg-current rounded" style={{ marginBottom: option.gap }} />
-                    <div className="w-10 h-0.5 bg-current rounded" style={{ marginBottom: option.gap }} />
-                    <div className="w-10 h-0.5 bg-current rounded" />
-                  </div>
-                  <span className="text-xs text-muted-foreground font-arabic mt-1">{option.label}</span>
-                </Label>
+                  {option.label}
+                </button>
               ))}
-            </RadioGroup>
+            </div>
           </div>
         </div>
       </SheetContent>

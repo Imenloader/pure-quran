@@ -2,104 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+/* Premium Quran fonts - Amiri Quran for verses, Amiri for UI */
+@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
 
 @layer base {
   :root {
-    /* Elegant warm parchment background */
-    --background: 38 35% 96%;
-    --foreground: 25 20% 12%;
+    /* Warm parchment - like aged paper */
+    --background: 36 33% 95%;
+    --foreground: 24 25% 12%;
 
-    --card: 40 30% 98%;
-    --card-foreground: 25 20% 12%;
+    --card: 38 35% 97%;
+    --card-foreground: 24 25% 12%;
 
-    --popover: 40 30% 98%;
-    --popover-foreground: 25 20% 12%;
+    --popover: 38 35% 97%;
+    --popover-foreground: 24 25% 12%;
 
-    /* Rich Islamic green */
-    --primary: 155 50% 25%;
-    --primary-foreground: 40 30% 98%;
+    /* Deep Islamic green - subtle and dignified */
+    --primary: 150 35% 22%;
+    --primary-foreground: 38 35% 97%;
 
-    /* Warm secondary */
-    --secondary: 38 25% 92%;
-    --secondary-foreground: 25 20% 18%;
+    /* Warm cream secondary */
+    --secondary: 36 28% 91%;
+    --secondary-foreground: 24 25% 15%;
 
-    --muted: 35 20% 90%;
-    --muted-foreground: 25 15% 40%;
+    --muted: 34 22% 88%;
+    --muted-foreground: 24 18% 38%;
 
-    /* Gold accent */
-    --accent: 42 80% 48%;
-    --accent-foreground: 25 20% 12%;
+    /* Antique gold accent - very subtle */
+    --accent: 38 55% 42%;
+    --accent-foreground: 24 25% 12%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 40 30% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 38 35% 97%;
 
-    --border: 35 25% 85%;
-    --input: 35 25% 85%;
-    --ring: 155 50% 25%;
+    --border: 34 25% 85%;
+    --input: 34 25% 85%;
+    --ring: 150 35% 22%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Custom tokens */
-    --surah-card-hover: 155 40% 96%;
-    --ayah-number: 155 50% 30%;
-    --bismillah: 25 25% 20%;
-    --verse-separator: 35 30% 88%;
-    --gold-ornament: 42 80% 48%;
+    /* Custom Quran tokens */
+    --verse-bg: 36 30% 96%;
+    --verse-hover: 36 35% 93%;
+    --verse-number-bg: 150 30% 25%;
+    --verse-number-fg: 38 35% 97%;
+    --separator: 34 25% 88%;
+    --gold: 38 55% 42%;
 
-    --sidebar-background: 40 25% 95%;
-    --sidebar-foreground: 25 20% 12%;
-    --sidebar-primary: 155 50% 25%;
-    --sidebar-primary-foreground: 40 30% 98%;
-    --sidebar-accent: 38 25% 92%;
-    --sidebar-accent-foreground: 25 20% 18%;
-    --sidebar-border: 35 25% 85%;
-    --sidebar-ring: 155 50% 25%;
+    --sidebar-background: 36 28% 94%;
+    --sidebar-foreground: 24 25% 12%;
+    --sidebar-primary: 150 35% 22%;
+    --sidebar-primary-foreground: 38 35% 97%;
+    --sidebar-accent: 36 28% 91%;
+    --sidebar-accent-foreground: 24 25% 15%;
+    --sidebar-border: 34 25% 85%;
+    --sidebar-ring: 150 35% 22%;
   }
 
   .dark {
-    --background: 25 20% 8%;
-    --foreground: 38 25% 92%;
+    /* Deep warm dark - like reading by lamplight */
+    --background: 25 20% 7%;
+    --foreground: 36 25% 88%;
 
-    --card: 25 18% 12%;
-    --card-foreground: 38 25% 92%;
+    --card: 25 18% 10%;
+    --card-foreground: 36 25% 88%;
 
-    --popover: 25 18% 12%;
-    --popover-foreground: 38 25% 92%;
+    --popover: 25 18% 10%;
+    --popover-foreground: 36 25% 88%;
 
-    --primary: 155 45% 45%;
-    --primary-foreground: 25 20% 8%;
+    --primary: 150 35% 42%;
+    --primary-foreground: 25 20% 7%;
 
-    --secondary: 25 15% 16%;
-    --secondary-foreground: 38 25% 92%;
+    --secondary: 25 15% 14%;
+    --secondary-foreground: 36 25% 88%;
 
-    --muted: 25 12% 18%;
-    --muted-foreground: 35 20% 55%;
+    --muted: 25 12% 16%;
+    --muted-foreground: 34 18% 55%;
 
-    --accent: 42 75% 55%;
-    --accent-foreground: 25 20% 8%;
+    --accent: 38 50% 52%;
+    --accent-foreground: 25 20% 7%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 38 25% 92%;
+    --destructive: 0 62% 35%;
+    --destructive-foreground: 36 25% 88%;
 
-    --border: 25 12% 20%;
-    --input: 25 12% 20%;
-    --ring: 155 45% 45%;
+    --border: 25 12% 18%;
+    --input: 25 12% 18%;
+    --ring: 150 35% 42%;
 
-    --surah-card-hover: 155 25% 14%;
-    --ayah-number: 155 45% 50%;
-    --bismillah: 38 20% 85%;
-    --verse-separator: 25 12% 22%;
-    --gold-ornament: 42 75% 55%;
+    --verse-bg: 25 16% 11%;
+    --verse-hover: 25 18% 14%;
+    --verse-number-bg: 150 30% 35%;
+    --verse-number-fg: 25 20% 7%;
+    --separator: 25 12% 20%;
+    --gold: 38 50% 52%;
 
-    --sidebar-background: 25 18% 10%;
-    --sidebar-foreground: 38 25% 92%;
-    --sidebar-primary: 155 45% 45%;
-    --sidebar-primary-foreground: 25 20% 8%;
-    --sidebar-accent: 25 15% 16%;
-    --sidebar-accent-foreground: 38 25% 92%;
-    --sidebar-border: 25 12% 20%;
-    --sidebar-ring: 155 45% 45%;
+    --sidebar-background: 25 18% 9%;
+    --sidebar-foreground: 36 25% 88%;
+    --sidebar-primary: 150 35% 42%;
+    --sidebar-primary-foreground: 25 20% 7%;
+    --sidebar-accent: 25 15% 14%;
+    --sidebar-accent-foreground: 36 25% 88%;
+    --sidebar-border: 25 12% 18%;
+    --sidebar-ring: 150 35% 42%;
   }
 }
 
@@ -110,108 +114,96 @@
 
   html {
     direction: rtl;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Amiri', 'Noto Naskh Arabic', serif;
+    font-family: 'Amiri', serif;
   }
 
-  /* Arabic text styling */
-  .arabic-text {
-    font-family: 'Amiri', 'Noto Naskh Arabic', serif;
+  /* Quran verse text - using Amiri Quran for authentic feel */
+  .quran-text {
+    font-family: 'Amiri Quran', 'Amiri', serif;
     direction: rtl;
     text-align: right;
-    line-height: 2.2;
-    letter-spacing: 0.02em;
-  }
-
-  .surah-name {
-    font-family: 'Amiri', 'Noto Naskh Arabic', serif;
-    font-weight: 700;
-  }
-
-  /* Ayah styling - uses CSS variables for settings */
-  .ayah-text {
-    font-size: var(--ayah-font-size, 1.75rem);
-    line-height: var(--ayah-line-height, 2.5);
-    word-spacing: 0.15em;
+    font-size: var(--quran-font-size, 1.875rem);
+    line-height: var(--quran-line-height, 2.8);
+    letter-spacing: 0.01em;
+    word-spacing: 0.08em;
+    color: hsl(var(--foreground));
+    font-feature-settings: "liga" 1, "calt" 1;
   }
 
   @media (min-width: 768px) {
-    .ayah-text {
-      font-size: calc(var(--ayah-font-size, 1.75rem) * 1.15);
-      line-height: var(--ayah-line-height, 2.8);
+    .quran-text {
+      font-size: calc(var(--quran-font-size, 1.875rem) * 1.2);
+      line-height: var(--quran-line-height, 3);
     }
   }
 
-  /* Ayah number badge */
-  .ayah-number {
-    @apply inline-flex items-center justify-center;
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(155 45% 35%) 100%);
-    color: hsl(var(--primary-foreground));
-    @apply text-sm font-medium rounded-full;
-    width: 2.25rem;
-    height: 2.25rem;
-    margin-inline-start: 0.75rem;
+  /* Verse number - subtle circular badge */
+  .verse-end-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-inline-start: 0.5rem;
     font-family: 'Amiri', serif;
-    box-shadow: 0 2px 8px hsl(var(--primary) / 0.25);
-  }
-
-  /* Bismillah styling */
-  .bismillah {
-    font-size: 1.75rem;
-    color: hsl(var(--bismillah));
-    text-align: center;
-    padding: 2rem 1rem;
-    position: relative;
-  }
-
-  .bismillah::before,
-  .bismillah::after {
-    content: '✦';
-    color: hsl(var(--gold-ornament));
-    margin: 0 1rem;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
+    color: hsl(var(--verse-number-fg));
+    background: hsl(var(--verse-number-bg));
+    border-radius: 50%;
     vertical-align: middle;
+  }
+
+  /* Bismillah - centered and dignified */
+  .bismillah {
+    font-family: 'Amiri Quran', 'Amiri', serif;
+    font-size: 1.75rem;
+    color: hsl(var(--foreground));
+    text-align: center;
+    padding: 2.5rem 1rem;
+    line-height: 2;
   }
 
   @media (min-width: 768px) {
     .bismillah {
       font-size: 2.25rem;
-      padding: 2.5rem 1rem;
+      padding: 3rem 1rem;
     }
   }
 
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Selection color */
-  ::selection {
-    background-color: hsl(var(--primary) / 0.2);
-    color: hsl(var(--foreground));
+  /* Surah name styling */
+  .surah-title {
+    font-family: 'Amiri', serif;
+    font-weight: 700;
   }
 
   /* Tafsir text styling */
-  .tafsir-text {
-    font-family: 'Amiri', 'Noto Naskh Arabic', serif;
+  .tafsir-content {
+    font-family: 'Amiri', serif;
     direction: rtl;
     text-align: right;
-    line-height: 2;
-    font-size: 1.1rem;
+    line-height: 2.2;
+    font-size: 1.125rem;
+    color: hsl(var(--foreground) / 0.9);
   }
 
-  .tafsir-text p {
-    margin-bottom: 1rem;
+  .tafsir-content p {
+    margin-bottom: 1.25rem;
+    text-indent: 1.5rem;
   }
 
-  .tafsir-text h1, .tafsir-text h2, .tafsir-text h3 {
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    margin-top: 1.5rem;
-    color: hsl(var(--primary));
+  .tafsir-content p:first-child {
+    text-indent: 0;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.15);
+    color: hsl(var(--foreground));
   }
 }
 
@@ -220,24 +212,59 @@
     text-wrap: balance;
   }
 
-  /* Decorative Islamic pattern background */
-  .islamic-pattern {
-    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='0.03'%3E%3Cpath d='M40 40L20 20v40l20-20zm0 0l20 20V20L40 40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  /* Subtle decorative divider */
+  .divider-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: hsl(var(--gold));
+    font-size: 0.75rem;
   }
 
-  /* Gold decorative line */
-  .gold-line {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, hsl(var(--gold-ornament)), transparent);
+  .divider-ornament::before,
+  .divider-ornament::after {
+    content: '';
+    height: 1px;
+    width: 3rem;
+    background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.5), transparent);
   }
 
-  /* Card hover effect */
-  .card-hover {
-    transition: all 0.3s ease;
+  /* Soft hover for interactive elements */
+  .soft-hover {
+    transition: all 0.25s ease;
   }
 
-  .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px -5px hsl(var(--primary) / 0.15);
+  .soft-hover:hover {
+    background-color: hsl(var(--verse-hover));
   }
+
+  /* Fade in animation */
+  .fade-enter {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stagger children animation */
+  .stagger-children > * {
+    opacity: 0;
+    animation: fadeIn 0.35s ease-out forwards;
+  }
+
+  .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+  .stagger-children > *:nth-child(n+6) { animation-delay: 0.3s; }
 }
