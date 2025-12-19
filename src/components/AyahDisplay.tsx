@@ -10,13 +10,11 @@ export function AyahDisplay({ ayah, surahNumber }: AyahDisplayProps) {
   return (
     <Link
       to={`/surah/${surahNumber}/ayah/${ayah.numberInSurah}`}
-      className="block py-6 soft-hover rounded-md -mx-4 px-4 cursor-pointer group"
+      className="block py-4 px-4 table-row-hover transition-colors cursor-pointer"
     >
-      <p className="quran-text text-foreground group-hover:text-foreground/85 transition-colors duration-200">
+      <p className="quran-text">
         {ayah.text}
-        <span className="verse-end-mark">
-          {toArabicNumerals(ayah.numberInSurah)}
-        </span>
+        <span className="verse-number">{toArabicNumerals(ayah.numberInSurah)}</span>
       </p>
     </Link>
   );

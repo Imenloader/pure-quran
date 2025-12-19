@@ -16,22 +16,21 @@ export function TafsirTabs({ surahNumber, ayahNumber }: TafsirTabsProps) {
   return (
     <section className="fade-enter" style={{ animationDelay: "0.2s" }}>
       {/* Section Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="font-arabic text-xl font-bold text-foreground">التفسير</h2>
-        <div className="flex-1 h-px bg-border" />
+      <div className="bg-primary text-primary-foreground py-3 px-4 rounded-t-lg">
+        <h2 className="font-arabic text-lg font-bold">التفسير</h2>
       </div>
 
-      {/* Tab Buttons - Segmented Control Style */}
-      <div className="flex flex-wrap gap-2 mb-6 p-1 bg-muted/50 rounded-lg w-fit">
+      {/* Tab Buttons */}
+      <div className="flex flex-wrap border-x border-border bg-secondary">
         {ARABIC_TAFSIRS.map((tafsir) => (
           <button
             key={tafsir.id}
             onClick={() => setActiveTab(tafsir.id)}
             className={cn(
-              "px-4 py-2 rounded-md text-sm font-arabic transition-all duration-200",
+              "px-4 py-2.5 text-sm font-arabic transition-colors border-b-2",
               activeTab === tafsir.id
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                ? "border-primary text-primary bg-background"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:bg-background/50"
             )}
           >
             {tafsir.author}
@@ -40,7 +39,7 @@ export function TafsirTabs({ surahNumber, ayahNumber }: TafsirTabsProps) {
       </div>
 
       {/* Tafsir Content */}
-      <div className="bg-card rounded-lg border border-border/60 overflow-hidden">
+      <div className="bg-card rounded-b-lg border border-t-0 border-border">
         <TafsirContent
           surahNumber={surahNumber}
           ayahNumber={ayahNumber}
@@ -73,32 +72,31 @@ function TafsirContent({ surahNumber, ayahNumber, tafsirId, tafsirName }: Tafsir
 
   if (isLoading) {
     return (
-      <div className="p-8 space-y-4" dir="rtl">
-        <Skeleton className="h-5 w-full" />
-        <Skeleton className="h-5 w-[92%]" />
-        <Skeleton className="h-5 w-[88%]" />
-        <Skeleton className="h-5 w-[95%]" />
-        <Skeleton className="h-5 w-[85%]" />
+      <div className="p-6 space-y-3" dir="rtl">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-[95%]" />
+        <Skeleton className="h-4 w-[90%]" />
+        <Skeleton className="h-4 w-[92%]" />
+        <Skeleton className="h-4 w-[88%]" />
       </div>
     );
   }
 
-  // Arabic-only error message - NO fallback to other languages
   if (error || !tafsir) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground p-12" dir="rtl">
-        <AlertCircle className="h-8 w-8 text-amber-600" />
-        <p className="font-arabic text-base text-center">
+      <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground p-10" dir="rtl">
+        <AlertCircle className="h-6 w-6 text-amber-500" />
+        <p className="font-arabic text-sm text-center">
           هذا التفسير غير متوفر لهذه الآية.
         </p>
-        <p className="font-arabic text-sm text-center opacity-75">
+        <p className="font-arabic text-xs text-center opacity-70">
           يرجى اختيار تفسير آخر من القائمة أعلاه.
         </p>
       </div>
     );
   }
 
-  // Clean up HTML and format - Arabic content only
+  // Clean up HTML
   const cleanText = tafsir.text
     .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;/g, " ")
@@ -110,8 +108,8 @@ function TafsirContent({ surahNumber, ayahNumber, tafsirId, tafsirName }: Tafsir
     .trim();
 
   return (
-    <div className="p-6 md:p-8" dir="rtl">
-      <div className="tafsir-content font-arabic text-right leading-loose">
+    <div className="p-6" dir="rtl">
+      <div className="tafsir-content">
         {cleanText}
       </div>
     </div>
