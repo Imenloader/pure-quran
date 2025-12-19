@@ -62,70 +62,87 @@ const AyahPage = () => {
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
 
-        <main className="flex-1 container py-8">
-          {isLoading ? (
-            <LoadingSpinner message="جاري تحميل الآية..." />
-          ) : error ? (
-            <ErrorMessage message="فشل تحميل الآية" onRetry={() => refetch()} />
-          ) : !isValidAyah || !ayah || !surah ? (
-            <Navigate to={`/surah/${getSurahSlug({ number: surahNumber, name: "", englishName: `surah-${surahNumber}`, englishNameTranslation: "", numberOfAyahs: 0, revelationType: "Meccan" })}`} replace />
-          ) : (
-            <article className="max-w-3xl mx-auto">
-              {/* Breadcrumb */}
-              <Link
-                to={`/surah/${getSurahSlug(surah)}`}
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 fade-enter"
-              >
-                <ChevronRight className="h-4 w-4" />
-                <span className="font-arabic">العودة إلى {surah.name}</span>
-              </Link>
-
-              {/* Surah & Ayah Info */}
-              <header className="text-center mb-10 fade-enter" style={{ animationDelay: "0.1s" }}>
-                <h1 className="font-arabic text-2xl md:text-3xl font-bold text-foreground surah-title mb-2">
-                  {surah.name}
-                </h1>
-                <p className="text-muted-foreground">
-                  الآية {toArabicNumerals(ayahNumber)} من {toArabicNumerals(surah.numberOfAyahs)}
-                </p>
-                <div className="divider-ornament mt-6">
-                  <span>✦</span>
-                </div>
-              </header>
-
-              {/* Ayah Display - Large and Prominent */}
-              <div className="bg-card rounded-lg border border-border/60 p-8 md:p-12 mb-8 fade-enter" style={{ animationDelay: "0.15s" }}>
-                <p className="quran-text text-center">
-                  {ayah.text}
-                  <span className="verse-end-mark">{toArabicNumerals(ayahNumber)}</span>
-                </p>
-              </div>
-
-              {/* Ayah Navigation */}
-              <nav className="flex items-center justify-between mb-12 fade-enter" style={{ animationDelay: "0.2s" }}>
-                {getNextLink() ? (
-                  <Link to={getNextLink()!}>
-                    <Button variant="ghost" size="sm" className="gap-2 font-arabic text-muted-foreground hover:text-foreground">
-                      <span>التالية</span>
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                ) : <div />}
-
-                {getPrevLink() ? (
-                  <Link to={getPrevLink()!}>
-                    <Button variant="ghost" size="sm" className="gap-2 font-arabic text-muted-foreground hover:text-foreground">
-                      <ChevronRight className="h-4 w-4" />
-                      <span>السابقة</span>
-                    </Button>
-                  </Link>
-                ) : <div />}
+        <main className="flex-1">
+          {/* Breadcrumb */}
+          <div className="bg-secondary border-b border-border py-3">
+            <div className="container">
+              <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Link to="/" className="text-link hover:underline">الرئيسية</Link>
+                <ChevronRight className="h-4 w-4 rotate-180" />
+                {surah && (
+                  <>
+                    <Link to={`/surah/${getSurahSlug(surah)}`} className="text-link hover:underline">
+                      {surah.name}
+                    </Link>
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                  </>
+                )}
+                <span className="text-foreground">الآية {toArabicNumerals(ayahNumber)}</span>
               </nav>
+            </div>
+          </div>
 
-              {/* Tafsir Section */}
-              <TafsirTabs surahNumber={surahNumber} ayahNumber={ayahNumber} />
-            </article>
-          )}
+          <div className="container py-6">
+            {isLoading ? (
+              <LoadingSpinner message="جاري تحميل الآية..." />
+            ) : error ? (
+              <ErrorMessage message="فشل تحميل الآية" onRetry={() => refetch()} />
+            ) : !isValidAyah || !ayah || !surah ? (
+              <Navigate to={`/surah/${getSurahSlug({ number: surahNumber, name: "", englishName: `surah-${surahNumber}`, englishNameTranslation: "", numberOfAyahs: 0, revelationType: "Meccan" })}`} replace />
+            ) : (
+              <article className="max-w-4xl mx-auto">
+                {/* Surah & Ayah Header */}
+                <header className="text-center mb-6 fade-enter">
+                  <div className="bg-primary text-primary-foreground py-4 px-4 rounded-lg">
+                    <h1 className="font-arabic text-xl font-bold mb-1">
+                      {surah.name}
+                    </h1>
+                    <p className="text-sm text-white/80">
+                      الآية {toArabicNumerals(ayahNumber)} من {toArabicNumerals(surah.numberOfAyahs)}
+                    </p>
+                  </div>
+                </header>
+
+                {/* Ayah Display */}
+                <div className="bg-card rounded-lg border border-border p-6 md:p-8 mb-6 fade-enter" style={{ animationDelay: "0.1s" }}>
+                  <p className="quran-text text-center">
+                    {ayah.text}
+                    <span className="verse-number">{toArabicNumerals(ayahNumber)}</span>
+                  </p>
+                </div>
+
+                {/* Ayah Navigation */}
+                <nav className="flex items-center justify-between mb-8 fade-enter" style={{ animationDelay: "0.15s" }}>
+                  {getNextLink() ? (
+                    <Link to={getNextLink()!}>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <span>الآية التالية</span>
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  ) : <div />}
+
+                  <Link to={`/surah/${getSurahSlug(surah)}`}>
+                    <Button variant="ghost" size="sm" className="text-link">
+                      العودة للسورة
+                    </Button>
+                  </Link>
+
+                  {getPrevLink() ? (
+                    <Link to={getPrevLink()!}>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <ChevronRight className="h-4 w-4" />
+                        <span>الآية السابقة</span>
+                      </Button>
+                    </Link>
+                  ) : <div />}
+                </nav>
+
+                {/* Tafsir Section */}
+                <TafsirTabs surahNumber={surahNumber} ayahNumber={ayahNumber} />
+              </article>
+            )}
+          </div>
         </main>
 
         <Footer />

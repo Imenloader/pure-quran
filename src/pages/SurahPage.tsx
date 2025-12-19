@@ -1,5 +1,6 @@
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { ChevronRight } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SurahHeader } from "@/components/SurahHeader";
@@ -39,42 +40,61 @@ const SurahPage = () => {
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
 
-        <main className="flex-1 container py-6">
-          {isLoading ? (
-            <LoadingSpinner message="جاري تحميل السورة..." />
-          ) : error ? (
-            <ErrorMessage message="فشل تحميل السورة" onRetry={() => refetch()} />
-          ) : surah ? (
-            <article className="max-w-3xl mx-auto">
-              <SurahHeader surah={surah} />
+        <main className="flex-1">
+          {/* Breadcrumb */}
+          <div className="bg-secondary border-b border-border py-3">
+            <div className="container">
+              <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Link to="/" className="text-link hover:underline">الرئيسية</Link>
+                <ChevronRight className="h-4 w-4 rotate-180" />
+                <span>فهرس السور</span>
+                {surah && (
+                  <>
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                    <span className="text-foreground">{surah.name}</span>
+                  </>
+                )}
+              </nav>
+            </div>
+          </div>
 
-              {/* Bismillah */}
-              {showBismillah && (
-                <div className="bismillah fade-enter" style={{ animationDelay: "0.15s" }}>
-                  بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                </div>
-              )}
+          <div className="container py-6">
+            {isLoading ? (
+              <LoadingSpinner message="جاري تحميل السورة..." />
+            ) : error ? (
+              <ErrorMessage message="فشل تحميل السورة" onRetry={() => refetch()} />
+            ) : surah ? (
+              <article className="max-w-4xl mx-auto">
+                <SurahHeader surah={surah} />
 
-              {/* Reading hint */}
-              <p className="text-center text-sm text-muted-foreground mb-8 fade-enter" style={{ animationDelay: "0.2s" }}>
-                اضغط على أي آية لقراءة التفسير
-              </p>
-
-              {/* Verses */}
-              <div className="border-t border-border/60 fade-enter" style={{ animationDelay: "0.25s" }}>
-                {surah.ayahs.map((ayah) => (
-                  <div key={ayah.number} className="border-b border-border/40 last:border-b-0">
-                    <AyahDisplay ayah={ayah} surahNumber={surahNumber} />
+                {/* Bismillah */}
+                {showBismillah && (
+                  <div className="bismillah fade-enter border-b border-border" style={{ animationDelay: "0.1s" }}>
+                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                   </div>
-                ))}
-              </div>
+                )}
 
-              {/* Navigation */}
-              {allSurahs && (
-                <SurahNavigation currentSurah={surahNumber} allSurahs={allSurahs} />
-              )}
-            </article>
-          ) : null}
+                {/* Reading hint */}
+                <p className="text-center text-sm text-muted-foreground py-4 bg-secondary/50 rounded mb-4 fade-enter" style={{ animationDelay: "0.15s" }}>
+                  اضغط على أي آية لقراءة التفسير
+                </p>
+
+                {/* Verses */}
+                <div className="border border-border rounded-lg bg-card overflow-hidden fade-enter" style={{ animationDelay: "0.2s" }}>
+                  {surah.ayahs.map((ayah) => (
+                    <div key={ayah.number} className="border-b border-border/50 last:border-b-0">
+                      <AyahDisplay ayah={ayah} surahNumber={surahNumber} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Navigation */}
+                {allSurahs && (
+                  <SurahNavigation currentSurah={surahNumber} allSurahs={allSurahs} />
+                )}
+              </article>
+            ) : null}
+          </div>
         </main>
 
         <Footer />

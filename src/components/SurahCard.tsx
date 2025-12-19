@@ -6,32 +6,35 @@ interface SurahCardProps {
   index: number;
 }
 
-export function SurahCard({ surah, index }: SurahCardProps) {
+export function SurahCard({ surah }: SurahCardProps) {
   return (
     <Link
       to={`/surah/${getSurahSlug(surah)}`}
-      className="group block fade-enter"
-      style={{ animationDelay: `${Math.min(index * 25, 250)}ms` }}
+      className="table-row-hover block border-b border-table-border last:border-b-0"
     >
-      <div className="flex items-center gap-5 py-4 px-5 rounded-lg bg-card border border-border/50 soft-hover hover:border-border">
+      <div className="flex items-center gap-4 py-3 px-4">
         {/* Surah Number */}
-        <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-full bg-primary/10 text-primary font-arabic text-lg font-bold">
-          {toArabicNumerals(surah.number)}
+        <div className="flex-shrink-0 w-8 text-center">
+          <span className="text-sm font-semibold text-primary">
+            {toArabicNumerals(surah.number)}
+          </span>
         </div>
 
-        {/* Surah Info */}
+        {/* Arabic Name */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-arabic text-xl font-bold text-foreground surah-title group-hover:text-primary transition-colors">
+          <h3 className="font-arabic text-base font-semibold text-foreground">
             {surah.name}
           </h3>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {toArabicNumerals(surah.numberOfAyahs)} آية · {getRevelationTypeArabic(surah.revelationType)}
-          </p>
         </div>
 
-        {/* English name - subtle */}
-        <div className="text-left hidden sm:block">
-          <p className="text-sm text-muted-foreground/70">{surah.englishName}</p>
+        {/* Ayah Count */}
+        <div className="text-sm text-muted-foreground">
+          {toArabicNumerals(surah.numberOfAyahs)} آية
+        </div>
+
+        {/* Revelation Type */}
+        <div className="hidden sm:block text-sm text-muted-foreground w-12">
+          {getRevelationTypeArabic(surah.revelationType)}
         </div>
       </div>
     </Link>

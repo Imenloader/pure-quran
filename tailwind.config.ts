@@ -7,13 +7,13 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "1.25rem",
+      padding: "1rem",
       screens: {
         sm: "640px",
         md: "768px",
-        lg: "860px",
-        xl: "920px",
-        "2xl": "980px",
+        lg: "1024px",
+        xl: "1200px",
+        "2xl": "1280px",
       },
     },
     extend: {
@@ -61,16 +61,21 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        verse: {
-          bg: "hsl(var(--verse-bg))",
-          hover: "hsl(var(--verse-hover))",
+        header: {
+          DEFAULT: "hsl(var(--header-bg))",
+          foreground: "hsl(var(--header-fg))",
         },
-        gold: "hsl(var(--gold))",
+        link: "hsl(var(--link-color))",
+        table: {
+          header: "hsl(var(--table-header))",
+          border: "hsl(var(--table-border))",
+          hover: "hsl(var(--table-hover))",
+        },
       },
       fontFamily: {
         quran: ["'Amiri Quran'", "'Amiri'", "serif"],
-        arabic: ["'Amiri'", "serif"],
-        serif: ["'Amiri'", "Georgia", "serif"],
+        arabic: ["'Noto Naskh Arabic'", "'Amiri'", "serif"],
+        serif: ["'Noto Naskh Arabic'", "Georgia", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
