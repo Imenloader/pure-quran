@@ -50,11 +50,11 @@ const AyahPage = () => {
     <>
       <Helmet>
         <title>
-          {surah && ayah ? `الآية ${toArabicNumerals(ayahNumber)} - ${surah.name}` : "القرآن الكريم"}
+          {surah && ayah ? `تفسير الآية ${toArabicNumerals(ayahNumber)} - ${surah.name}` : "القرآن الكريم"}
         </title>
         <meta
           name="description"
-          content={surah && ayah ? `تفسير الآية ${ayahNumber} من ${surah.name}` : "القرآن الكريم مع التفسير"}
+          content={surah && ayah ? `تفسير الآية ${ayahNumber} من ${surah.name} - ابن كثير، السعدي، الطبري، القرطبي، الجلالين` : "القرآن الكريم مع التفسير"}
         />
         <link rel="canonical" href={`/surah/${surahNumber}/ayah/${ayahNumber}`} />
       </Helmet>
@@ -77,7 +77,7 @@ const AyahPage = () => {
                     <ChevronRight className="h-4 w-4 rotate-180" />
                   </>
                 )}
-                <span className="text-foreground">الآية {toArabicNumerals(ayahNumber)}</span>
+                <span className="text-foreground">تفسير الآية {toArabicNumerals(ayahNumber)}</span>
               </nav>
             </div>
           </div>
@@ -91,21 +91,25 @@ const AyahPage = () => {
               <Navigate to={`/surah/${getSurahSlug({ number: surahNumber, name: "", englishName: `surah-${surahNumber}`, englishNameTranslation: "", numberOfAyahs: 0, revelationType: "Meccan" })}`} replace />
             ) : (
               <article className="max-w-4xl mx-auto">
-                {/* Surah & Ayah Header */}
+                {/* Page Title */}
                 <header className="text-center mb-6 fade-enter">
-                  <div className="bg-primary text-primary-foreground py-4 px-4 rounded-lg">
-                    <h1 className="font-arabic text-xl font-bold mb-1">
-                      {surah.name}
-                    </h1>
-                    <p className="text-sm text-white/80">
-                      الآية {toArabicNumerals(ayahNumber)} من {toArabicNumerals(surah.numberOfAyahs)}
-                    </p>
-                  </div>
+                  <h1 className="font-arabic text-xl font-bold text-foreground mb-2">
+                    تفسير {surah.name}
+                  </h1>
+                  <p className="text-muted-foreground text-sm">
+                    الآية {toArabicNumerals(ayahNumber)} من {toArabicNumerals(surah.numberOfAyahs)}
+                  </p>
                 </header>
 
-                {/* Ayah Display */}
-                <div className="bg-card rounded-lg border border-border p-6 md:p-8 mb-6 fade-enter" style={{ animationDelay: "0.1s" }}>
-                  <p className="quran-text text-center">
+                {/* Ayah Display - Decorative Frame */}
+                <div className="bg-card rounded-lg border-2 border-primary/30 p-6 md:p-8 mb-6 fade-enter relative" style={{ animationDelay: "0.1s" }}>
+                  {/* Decorative corners */}
+                  <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary/40" />
+                  <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary/40" />
+                  <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary/40" />
+                  <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary/40" />
+                  
+                  <p className="quran-text text-center text-2xl md:text-3xl leading-loose">
                     {ayah.text}
                     <span className="verse-number">{toArabicNumerals(ayahNumber)}</span>
                   </p>
@@ -138,7 +142,7 @@ const AyahPage = () => {
                   ) : <div />}
                 </nav>
 
-                {/* Tafsir Section */}
+                {/* Tafsir Section - All tafsirs displayed vertically */}
                 <TafsirTabs surahNumber={surahNumber} ayahNumber={ayahNumber} />
               </article>
             )}

@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Book, Settings } from "lucide-react";
+import { Home, Search, Book } from "lucide-react";
 import { SettingsSheet } from "@/components/SettingsSheet";
 
 export function Header() {
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isSearch = location.pathname === "/search";
 
   return (
     <header className="sticky top-0 z-50">
@@ -16,7 +17,7 @@ export function Header() {
             <span className="text-neutral-600">|</span>
             <Link to="/" className="hover:text-white transition-colors">فهرس السور</Link>
             <span className="text-neutral-600">|</span>
-            <span className="text-neutral-500">تفسير القرآن</span>
+            <Link to="/search" className="hover:text-white transition-colors">البحث</Link>
           </nav>
           <SettingsSheet />
         </div>
@@ -51,18 +52,23 @@ export function Header() {
                 </span>
               </Link>
               <Link
-                to="/"
-                className="px-4 py-2 rounded text-sm hover:bg-white/10 transition-colors"
+                to="/search"
+                className={`px-4 py-2 rounded text-sm transition-colors ${
+                  isSearch ? "bg-white/20" : "hover:bg-white/10"
+                }`}
               >
                 <span className="flex items-center gap-2">
-                  <Book className="h-4 w-4" />
-                  فهرس السور
+                  <Search className="h-4 w-4" />
+                  البحث
                 </span>
               </Link>
             </nav>
 
             {/* Mobile nav */}
             <div className="flex md:hidden items-center gap-2">
+              <Link to="/search" className="p-2 hover:bg-white/10 rounded transition-colors">
+                <Search className="h-5 w-5" />
+              </Link>
               {!isHome && (
                 <Link to="/" className="p-2 hover:bg-white/10 rounded transition-colors">
                   <Home className="h-5 w-5" />
