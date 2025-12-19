@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ARABIC_TAFSIRS } from "@/lib/quran-api";
 
 const AUTO_IMPORT_KEY = "tafsir_auto_import_started";
 
@@ -26,14 +25,14 @@ export const useAutoImportTafsir = () => {
 
     // Check if any tafsir has data
     const { count } = await supabase
-      .from("tafsir_content")
+      .from("tafsir_texts")
       .select("*", { count: "exact", head: true });
 
     return (count || 0) === 0;
   }, []);
 
   const importSurah = async (
-    tafsirId: number,
+    tafsirKey: string,
     surahNumber: number
   ): Promise<boolean> => {
     try {
@@ -46,7 +45,7 @@ export const useAutoImportTafsir = () => {
           },
           body: JSON.stringify({
             action: "import",
-            tafsirId,
+            tafsirKey,
             surahNumber,
           }),
         }
@@ -74,12 +73,21 @@ export const useAutoImportTafsir = () => {
       totalProgress: 0,
     });
 
-    // Import first tafsir only (Ibn Kathir) to speed up initial experience
-    const firstTafsir = ARABIC_TAFSIRS[0];
+    // Get first tafsir source from database
+    const { data: sources } = await supabase
+      .from('tafsir_sources')
+      .select('tafsir_key, tafsir_name_ar')
+      .eq('enabled', true)
+      .order('display_order')
+      .limit(1);
+
+    if (!sources || sources.length === 0) return;
+
+    const firstTafsir = sources[0];
     
     setProgress((prev) => ({
       ...prev,
-      currentTafsir: firstTafsir.name,
+      currentTafsir: firstTafsir.tafsir_name_ar,
     }));
 
     for (let surah = 1; surah <= 114; surah++) {
@@ -89,7 +97,7 @@ export const useAutoImportTafsir = () => {
         totalProgress: Math.round((surah / 114) * 100),
       }));
 
-      const success = await importSurah(firstTafsir.id, surah);
+      const success = await importSurah(firstTafsir.tafsir_key, surah);
       if (!success) {
         console.error(`Failed to import surah ${surah}`);
         // Continue anyway

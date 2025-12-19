@@ -14,77 +14,144 @@ export type Database = {
   }
   public: {
     Tables: {
-      tafsir_content: {
+      tafsir_sources: {
+        Row: {
+          api_id: number
+          author_ar: string
+          created_at: string
+          display_order: number
+          enabled: boolean
+          id: string
+          tafsir_key: string
+          tafsir_name_ar: string
+        }
+        Insert: {
+          api_id: number
+          author_ar: string
+          created_at?: string
+          display_order?: number
+          enabled?: boolean
+          id?: string
+          tafsir_key: string
+          tafsir_name_ar: string
+        }
+        Update: {
+          api_id?: number
+          author_ar?: string
+          created_at?: string
+          display_order?: number
+          enabled?: boolean
+          id?: string
+          tafsir_key?: string
+          tafsir_name_ar?: string
+        }
+        Relationships: []
+      }
+      tafsir_texts: {
         Row: {
           ayah_number: number
           created_at: string
           id: string
           surah_number: number
-          tafsir_author: string
-          tafsir_id: number
-          tafsir_name: string
-          text: string
+          tafsir_key: string
+          text_ar: string
         }
         Insert: {
           ayah_number: number
           created_at?: string
           id?: string
           surah_number: number
-          tafsir_author: string
-          tafsir_id: number
-          tafsir_name: string
-          text: string
+          tafsir_key: string
+          text_ar: string
         }
         Update: {
           ayah_number?: number
           created_at?: string
           id?: string
           surah_number?: number
-          tafsir_author?: string
-          tafsir_id?: number
-          tafsir_name?: string
-          text?: string
+          tafsir_key?: string
+          text_ar?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tafsir_texts_tafsir_key_fkey"
+            columns: ["tafsir_key"]
+            isOneToOne: false
+            referencedRelation: "tafsir_sources"
+            referencedColumns: ["tafsir_key"]
+          },
+        ]
+      }
+      user_favorites: {
+        Row: {
+          ayah_number: number
+          created_at: string
+          id: string
+          note: string | null
+          surah_number: number
+          user_id: string
+        }
+        Insert: {
+          ayah_number: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          surah_number: number
+          user_id: string
+        }
+        Update: {
+          ayah_number?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          surah_number?: number
+          user_id?: string
         }
         Relationships: []
       }
-      tafsir_import_status: {
+      user_settings: {
         Row: {
-          completed_at: string | null
           created_at: string
-          error_message: string | null
+          dark_mode: boolean
+          default_tafsir: string | null
+          font_size: string
           id: string
-          imported_ayahs: number | null
-          started_at: string | null
-          status: string
-          tafsir_id: number
-          tafsir_name: string
-          total_ayahs: number | null
+          line_spacing: string
+          show_translation: boolean
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          completed_at?: string | null
           created_at?: string
-          error_message?: string | null
+          dark_mode?: boolean
+          default_tafsir?: string | null
+          font_size?: string
           id?: string
-          imported_ayahs?: number | null
-          started_at?: string | null
-          status?: string
-          tafsir_id: number
-          tafsir_name: string
-          total_ayahs?: number | null
+          line_spacing?: string
+          show_translation?: boolean
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          completed_at?: string | null
           created_at?: string
-          error_message?: string | null
+          dark_mode?: boolean
+          default_tafsir?: string | null
+          font_size?: string
           id?: string
-          imported_ayahs?: number | null
-          started_at?: string | null
-          status?: string
-          tafsir_id?: number
-          tafsir_name?: string
-          total_ayahs?: number | null
+          line_spacing?: string
+          show_translation?: boolean
+          updated_at?: string
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_default_tafsir_fkey"
+            columns: ["default_tafsir"]
+            isOneToOne: false
+            referencedRelation: "tafsir_sources"
+            referencedColumns: ["tafsir_key"]
+          },
+        ]
       }
     }
     Views: {
