@@ -125,17 +125,17 @@
     font-weight: 700;
   }
 
-  /* Ayah styling */
+  /* Ayah styling - uses CSS variables for settings */
   .ayah-text {
-    font-size: 1.75rem;
-    line-height: 2.5;
+    font-size: var(--ayah-font-size, 1.75rem);
+    line-height: var(--ayah-line-height, 2.5);
     word-spacing: 0.15em;
   }
 
   @media (min-width: 768px) {
     .ayah-text {
-      font-size: 2rem;
-      line-height: 2.8;
+      font-size: calc(var(--ayah-font-size, 1.75rem) * 1.15);
+      line-height: var(--ayah-line-height, 2.8);
     }
   }
 
