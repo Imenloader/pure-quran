@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, RotateCcw } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { toArabicNumerals } from "@/lib/quran-api";
 
 interface AudioPlayerProps {
   surahNumber: number;
@@ -12,18 +11,24 @@ interface AudioPlayerProps {
   onPrevious?: () => void;
 }
 
-// Quran audio CDN - Abdul Basit recitation
-const getAudioUrl = (surahNumber: number, ayahNumber: number): string => {
-  const surah = surahNumber.toString().padStart(3, "0");
-  const ayah = ayahNumber.toString().padStart(3, "0");
-  return `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${surahNumber}${ayah.slice(-3)}.mp3`;
-};
+// Correct audio URL format for Alafasy recitation
+// The verse key is calculated as: surahNumber * 1000 + ayahNumber for some APIs
+// Or we use the sequential ayah number across the entire Quran
+function getAudioUrl(surahNumber: number, ayahNumber: number): string {
+  // Format: surah padded to 3 digits + ayah padded to 3 digits
+  const surahPadded = surahNumber.toString().padStart(3, "0");
+  const ayahPadded = ayahNumber.toString().padStart(3, "0");
+  
+  // EveryAyah.com format - most reliable
+  return `https://everyayah.com/data/Alafasy_128kbps/${surahPadded}${ayahPadded}.mp3`;
+}
 
-// Alternative: Quran.com audio
-const getQuranComAudioUrl = (surahNumber: number, ayahNumber: number): string => {
-  const verseKey = `${surahNumber}${ayahNumber.toString().padStart(3, "0")}`;
-  return `https://verses.quran.com/Alafasy/mp3/${verseKey}.mp3`;
-};
+// Fallback URL
+function getFallbackAudioUrl(surahNumber: number, ayahNumber: number): string {
+  const surahPadded = surahNumber.toString().padStart(3, "0");
+  const ayahPadded = ayahNumber.toString().padStart(3, "0");
+  return `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${surahPadded}${ayahPadded}.mp3`;
+}
 
 export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPrevious }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -33,20 +38,28 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState("");
 
-  // Construct audio URL
-  const audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${surahNumber.toString().padStart(3, "0")}${ayahNumber.toString().padStart(3, "0")}.mp3`;
+  // Get audio URL
+  const primaryUrl = getAudioUrl(surahNumber, ayahNumber);
+  const fallbackUrl = getFallbackAudioUrl(surahNumber, ayahNumber);
 
   useEffect(() => {
     // Reset state when ayah changes
     setIsPlaying(false);
     setProgress(0);
+    setDuration(0);
     setError(false);
+    setIsLoading(false);
+    setCurrentUrl(primaryUrl);
+    
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current.src = primaryUrl;
+      audioRef.current.load();
     }
-  }, [surahNumber, ayahNumber]);
+  }, [surahNumber, ayahNumber, primaryUrl]);
 
   const handlePlayPause = async () => {
     if (!audioRef.current) return;
@@ -56,13 +69,31 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
       setIsPlaying(false);
     } else {
       setIsLoading(true);
+      setError(false);
+      
       try {
         await audioRef.current.play();
         setIsPlaying(true);
-        setError(false);
       } catch (err) {
         console.error("Audio playback failed:", err);
-        setError(true);
+        
+        // Try fallback URL
+        if (currentUrl === primaryUrl) {
+          console.log("Trying fallback URL...");
+          setCurrentUrl(fallbackUrl);
+          audioRef.current.src = fallbackUrl;
+          audioRef.current.load();
+          
+          try {
+            await audioRef.current.play();
+            setIsPlaying(true);
+          } catch (fallbackErr) {
+            console.error("Fallback also failed:", fallbackErr);
+            setError(true);
+          }
+        } else {
+          setError(true);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -78,7 +109,13 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
+      setIsLoading(false);
     }
+  };
+
+  const handleCanPlay = () => {
+    setIsLoading(false);
+    setError(false);
   };
 
   const handleEnded = () => {
@@ -86,8 +123,23 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
     setProgress(0);
   };
 
+  const handleError = () => {
+    // Only show error if we've tried both URLs
+    if (currentUrl === fallbackUrl) {
+      setError(true);
+      setIsLoading(false);
+    } else if (currentUrl === primaryUrl) {
+      // Try fallback
+      setCurrentUrl(fallbackUrl);
+      if (audioRef.current) {
+        audioRef.current.src = fallbackUrl;
+        audioRef.current.load();
+      }
+    }
+  };
+
   const handleSeek = (value: number[]) => {
-    if (audioRef.current) {
+    if (audioRef.current && duration > 0) {
       audioRef.current.currentTime = value[0];
       setProgress(value[0]);
     }
@@ -108,6 +160,7 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
   };
 
   const formatTime = (time: number): string => {
+    if (!time || !isFinite(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -117,25 +170,28 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
     <div className="bg-secondary/50 rounded-lg p-4 border border-border">
       <audio
         ref={audioRef}
-        src={audioUrl}
+        src={currentUrl}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onCanPlay={handleCanPlay}
         onEnded={handleEnded}
-        onError={() => setError(true)}
+        onError={handleError}
+        onWaiting={() => setIsLoading(true)}
+        onPlaying={() => setIsLoading(false)}
         preload="metadata"
       />
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 md:gap-4">
         {/* Play/Pause Button */}
         <Button
           variant="outline"
           size="icon"
           onClick={handlePlayPause}
-          disabled={isLoading || error}
-          className="h-10 w-10 rounded-full"
+          disabled={error}
+          className="h-10 w-10 rounded-full shrink-0"
         >
           {isLoading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : isPlaying ? (
             <Pause className="h-4 w-4" />
           ) : (
@@ -144,31 +200,31 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
         </Button>
 
         {/* Progress */}
-        <div className="flex-1 flex items-center gap-3">
-          <span className="text-xs text-muted-foreground w-10 text-left font-mono">
+        <div className="flex-1 flex items-center gap-2 md:gap-3 min-w-0">
+          <span className="text-xs text-muted-foreground w-8 md:w-10 text-left font-mono shrink-0">
             {formatTime(progress)}
           </span>
           <Slider
             value={[progress]}
-            max={duration || 100}
+            max={duration || 1}
             step={0.1}
             onValueChange={handleSeek}
             className="flex-1"
-            disabled={!duration}
+            disabled={!duration || error}
           />
-          <span className="text-xs text-muted-foreground w-10 text-right font-mono">
+          <span className="text-xs text-muted-foreground w-8 md:w-10 text-right font-mono shrink-0">
             {formatTime(duration)}
           </span>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           <Button
             variant="ghost"
             size="icon"
             onClick={handleRestart}
             className="h-8 w-8"
-            disabled={!duration}
+            disabled={!duration || error}
           >
             <RotateCcw className="h-3.5 w-3.5" />
           </Button>
@@ -190,7 +246,7 @@ export function AudioPlayer({ surahNumber, ayahNumber, totalAyahs, onNext, onPre
       {/* Error State */}
       {error && (
         <p className="text-xs text-destructive mt-2 text-center font-arabic">
-          تعذر تحميل التلاوة
+          تعذر تحميل التلاوة - جرب مرة أخرى
         </p>
       )}
 

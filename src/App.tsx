@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { useAutoImportTafsir } from "@/hooks/useAutoImportTafsir";
+import { useQuranPreloader } from "@/hooks/useQuranPreloader";
 import { AutoImportBanner } from "@/components/AutoImportBanner";
 import Index from "./pages/Index";
 import SurahPage from "./pages/SurahPage";
@@ -27,6 +28,9 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   const importProgress = useAutoImportTafsir();
+  
+  // Preload Quran data in the background
+  useQuranPreloader();
 
   return (
     <>
