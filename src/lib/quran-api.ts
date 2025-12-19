@@ -1,9 +1,7 @@
-// Quran API client using alquran.cloud and Quran Foundation APIs
-// Documentation: https://alquran.cloud/api
-// Tafsir: https://api.quran.com/api/v4/resources/tafsirs
+// Quran API client using alquran.cloud and LOCAL tafsir database
+// Tafsir content is stored locally - NO external API calls for tafsir
 
 const ALQURAN_API = "https://api.alquran.cloud/v1";
-const QURAN_COM_API = "https://api.quran.com/api/v4";
 
 export interface Surah {
   number: number;
@@ -36,24 +34,14 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export interface TafsirResource {
-  id: number;
-  name: string;
-  author_name: string;
-  slug: string;
-  language_name: string;
-  translated_name: {
-    name: string;
-    language_name: string;
-  };
-}
-
-export interface TafsirContent {
-  resource_id: number;
-  resource_name: string;
+export interface LocalTafsirContent {
+  id: string;
+  surah_number: number;
+  ayah_number: number;
+  tafsir_id: number;
+  tafsir_name: string;
+  tafsir_author: string;
   text: string;
-  verse_key: string;
-  language_id: number;
 }
 
 // Cache for API responses
@@ -82,7 +70,6 @@ async function fetchWithCache<T>(url: string): Promise<T> {
     return json.data;
   }
   
-  // Handle Quran.com API response format
   cache.set(url, { data: json, timestamp: Date.now() });
   return json;
 }
@@ -110,23 +97,6 @@ export async function getSurahInfo(surahNumber: number): Promise<Surah> {
     throw new Error(`Surah ${surahNumber} not found`);
   }
   return surah;
-}
-
-// Get tafsir content for a specific ayah
-export async function getTafsirForAyah(
-  surahNumber: number,
-  ayahNumber: number,
-  tafsirId: number
-): Promise<TafsirContent | null> {
-  try {
-    const verseKey = `${surahNumber}:${ayahNumber}`;
-    const response = await fetchWithCache<{ tafsir: TafsirContent }>(
-      `${QURAN_COM_API}/tafsirs/${tafsirId}/by_ayah/${verseKey}`
-    );
-    return response.tafsir || null;
-  } catch {
-    return null;
-  }
 }
 
 // Generate URL-friendly slug from Surah info
@@ -165,13 +135,8 @@ export function searchSurahs(surahs: Surah[], query: string): Surah[] {
     return surahs.filter((s) => s.number === numberQuery);
   }
 
-  // Search by English name or Arabic name
-  return surahs.filter(
-    (s) =>
-      s.englishName.toLowerCase().includes(normalizedQuery) ||
-      s.englishNameTranslation.toLowerCase().includes(normalizedQuery) ||
-      s.name.includes(query) // Arabic search
-  );
+  // Search by Arabic name only
+  return surahs.filter((s) => s.name.includes(query));
 }
 
 // Convert Arabic numerals to Eastern Arabic numerals (٠١٢٣٤٥٦٧٨٩)
@@ -185,13 +150,13 @@ export function toArabicNumerals(num: number): string {
 }
 
 // STRICT ARABIC-ONLY TAFSIR WHITELIST
-// Only these Arabic tafsir IDs are allowed - NO other languages permitted
+// Only these Arabic tafsir IDs are allowed - stored locally in database
 export const ARABIC_TAFSIRS = [
-  { id: 169, name: "تفسير ابن كثير", author: "ابن كثير", language: "ar" },
-  { id: 170, name: "تفسير السعدي", author: "السعدي", language: "ar" },
-  { id: 164, name: "تفسير الطبري", author: "الطبري", language: "ar" },
-  { id: 168, name: "تفسير القرطبي", author: "القرطبي", language: "ar" },
-  { id: 74, name: "تفسير الجلالين", author: "الجلالين", language: "ar" },
+  { id: 169, name: "تفسير ابن كثير", author: "ابن كثير" },
+  { id: 170, name: "تفسير السعدي", author: "السعدي" },
+  { id: 164, name: "تفسير الطبري", author: "الطبري" },
+  { id: 168, name: "تفسير القرطبي", author: "القرطبي" },
+  { id: 74, name: "تفسير الجلالين", author: "الجلالين" },
 ] as const;
 
 // Whitelist of allowed Arabic tafsir IDs
@@ -200,38 +165,6 @@ export const ALLOWED_ARABIC_TAFSIR_IDS: Set<number> = new Set(ARABIC_TAFSIRS.map
 // Validate if a tafsir ID is in the Arabic whitelist
 export function isArabicTafsir(tafsirId: number): boolean {
   return ALLOWED_ARABIC_TAFSIR_IDS.has(tafsirId);
-}
-
-// Get tafsir content ONLY if it's Arabic - reject all non-Arabic content
-export async function getArabicTafsirForAyah(
-  surahNumber: number,
-  ayahNumber: number,
-  tafsirId: number
-): Promise<TafsirContent | null> {
-  // Strict check: reject if not in Arabic whitelist
-  if (!isArabicTafsir(tafsirId)) {
-    console.warn(`Rejected non-Arabic tafsir ID: ${tafsirId}`);
-    return null;
-  }
-
-  try {
-    const verseKey = `${surahNumber}:${ayahNumber}`;
-    const response = await fetchWithCache<{ tafsir: TafsirContent }>(
-      `${QURAN_COM_API}/tafsirs/${tafsirId}/by_ayah/${verseKey}`
-    );
-    
-    // Additional validation: ensure content is Arabic
-    if (response.tafsir) {
-      const tafsirInfo = ARABIC_TAFSIRS.find(t => t.id === tafsirId);
-      if (!tafsirInfo) {
-        return null;
-      }
-      return response.tafsir;
-    }
-    return null;
-  } catch {
-    return null;
-  }
 }
 
 // Revelation type in Arabic

@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tafsir_content: {
+        Row: {
+          ayah_number: number
+          created_at: string
+          id: string
+          surah_number: number
+          tafsir_author: string
+          tafsir_id: number
+          tafsir_name: string
+          text: string
+        }
+        Insert: {
+          ayah_number: number
+          created_at?: string
+          id?: string
+          surah_number: number
+          tafsir_author: string
+          tafsir_id: number
+          tafsir_name: string
+          text: string
+        }
+        Update: {
+          ayah_number?: number
+          created_at?: string
+          id?: string
+          surah_number?: number
+          tafsir_author?: string
+          tafsir_id?: number
+          tafsir_name?: string
+          text?: string
+        }
+        Relationships: []
+      }
+      tafsir_import_status: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          imported_ayahs: number | null
+          started_at: string | null
+          status: string
+          tafsir_id: number
+          tafsir_name: string
+          total_ayahs: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          imported_ayahs?: number | null
+          started_at?: string | null
+          status?: string
+          tafsir_id: number
+          tafsir_name: string
+          total_ayahs?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          imported_ayahs?: number | null
+          started_at?: string | null
+          status?: string
+          tafsir_id?: number
+          tafsir_name?: string
+          total_ayahs?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

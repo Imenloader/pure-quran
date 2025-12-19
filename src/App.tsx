@@ -11,6 +11,7 @@ import SurahPage from "./pages/SurahPage";
 import AyahPage from "./pages/AyahPage";
 import SearchPage from "./pages/SearchPage";
 import FavoritesPage from "./pages/FavoritesPage";
+import TafsirImportPage from "./pages/TafsirImportPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -35,6 +36,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="/tafsir-import" element={<TafsirImportPage />} />
                 <Route path="/surah/:slug" element={<SurahPage />} />
                 <Route path="/surah/:surahNumber/ayah/:ayahNumber" element={<AyahPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
