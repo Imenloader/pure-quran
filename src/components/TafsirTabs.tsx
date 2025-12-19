@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
-import { getTafsirForAyah, ARABIC_TAFSIRS } from "@/lib/quran-api";
+import { getArabicTafsirForAyah, ARABIC_TAFSIRS } from "@/lib/quran-api";
 import { cn } from "@/lib/utils";
 
 interface TafsirTabsProps {
@@ -65,15 +65,15 @@ function TafsirContent({ surahNumber, ayahNumber, tafsirId, tafsirName }: Tafsir
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["tafsir", surahNumber, ayahNumber, tafsirId],
-    queryFn: () => getTafsirForAyah(surahNumber, ayahNumber, tafsirId),
+    queryKey: ["arabic-tafsir", surahNumber, ayahNumber, tafsirId],
+    queryFn: () => getArabicTafsirForAyah(surahNumber, ayahNumber, tafsirId),
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 60 * 24,
   });
 
   if (isLoading) {
     return (
-      <div className="p-8 space-y-4">
+      <div className="p-8 space-y-4" dir="rtl">
         <Skeleton className="h-5 w-full" />
         <Skeleton className="h-5 w-[92%]" />
         <Skeleton className="h-5 w-[88%]" />
@@ -83,16 +83,22 @@ function TafsirContent({ surahNumber, ayahNumber, tafsirId, tafsirName }: Tafsir
     );
   }
 
+  // Arabic-only error message - NO fallback to other languages
   if (error || !tafsir) {
     return (
-      <div className="flex items-center justify-center gap-3 text-muted-foreground p-12">
-        <span className="font-arabic text-sm">لا يتوفر {tafsirName} لهذه الآية</span>
-        <AlertCircle className="h-4 w-4" />
+      <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground p-12" dir="rtl">
+        <AlertCircle className="h-8 w-8 text-amber-600" />
+        <p className="font-arabic text-base text-center">
+          هذا التفسير غير متوفر لهذه الآية.
+        </p>
+        <p className="font-arabic text-sm text-center opacity-75">
+          يرجى اختيار تفسير آخر من القائمة أعلاه.
+        </p>
       </div>
     );
   }
 
-  // Clean up HTML and format
+  // Clean up HTML and format - Arabic content only
   const cleanText = tafsir.text
     .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;/g, " ")
@@ -104,8 +110,8 @@ function TafsirContent({ surahNumber, ayahNumber, tafsirId, tafsirName }: Tafsir
     .trim();
 
   return (
-    <div className="p-6 md:p-8">
-      <div className="tafsir-content">
+    <div className="p-6 md:p-8" dir="rtl">
+      <div className="tafsir-content font-arabic text-right leading-loose">
         {cleanText}
       </div>
     </div>
