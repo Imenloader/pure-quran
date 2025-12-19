@@ -29,7 +29,7 @@ async function loadTafsirFile(tafsirKey: string): Promise<TafsirData> {
     
     switch (tafsirKey) {
       case 'ibn-kathir':
-        data = (await import('./content/ibn-kathir')).default;
+        data = (await import('./content/ibn-kathir/index')).default;
         break;
       case 'saadi':
         data = (await import('./content/saadi')).default;
