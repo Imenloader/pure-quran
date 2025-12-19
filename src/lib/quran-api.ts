@@ -56,25 +56,6 @@ export interface TafsirContent {
   language_id: number;
 }
 
-export interface Translation {
-  id: number;
-  name: string;
-  author_name: string;
-  slug: string;
-  language_name: string;
-  translated_name: {
-    name: string;
-    language_name: string;
-  };
-}
-
-export interface TranslationContent {
-  resource_id: number;
-  resource_name: string;
-  text: string;
-  verse_key: string;
-}
-
 // Cache for API responses
 const cache = new Map<string, { data: unknown; timestamp: number }>();
 const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
@@ -121,16 +102,6 @@ export async function getSurah(surahNumber: number): Promise<SurahDetails> {
   );
 }
 
-// Get a single Ayah
-export async function getAyah(surahNumber: number, ayahNumber: number): Promise<Ayah & { surah: Surah }> {
-  const surah = await getSurah(surahNumber);
-  const ayah = surah.ayahs.find(a => a.numberInSurah === ayahNumber);
-  if (!ayah) {
-    throw new Error(`Ayah ${ayahNumber} not found in Surah ${surahNumber}`);
-  }
-  return { ...ayah, surah };
-}
-
 // Get Surah info without ayahs (lighter request)
 export async function getSurahInfo(surahNumber: number): Promise<Surah> {
   const surahs = await getAllSurahs();
@@ -139,15 +110,6 @@ export async function getSurahInfo(surahNumber: number): Promise<Surah> {
     throw new Error(`Surah ${surahNumber} not found`);
   }
   return surah;
-}
-
-// Get available tafsirs from Quran Foundation API
-export async function getAvailableTafsirs(): Promise<TafsirResource[]> {
-  const response = await fetchWithCache<{ tafsirs: TafsirResource[] }>(
-    `${QURAN_COM_API}/resources/tafsirs`
-  );
-  // Filter to get Arabic tafsirs primarily
-  return response.tafsirs;
 }
 
 // Get tafsir content for a specific ayah
@@ -162,46 +124,6 @@ export async function getTafsirForAyah(
       `${QURAN_COM_API}/tafsirs/${tafsirId}/by_ayah/${verseKey}`
     );
     return response.tafsir || null;
-  } catch {
-    return null;
-  }
-}
-
-// Get multiple tafsirs for an ayah
-export async function getMultipleTafsirsForAyah(
-  surahNumber: number,
-  ayahNumber: number,
-  tafsirIds: number[]
-): Promise<Map<number, TafsirContent | null>> {
-  const results = new Map<number, TafsirContent | null>();
-  await Promise.all(
-    tafsirIds.map(async (id) => {
-      const content = await getTafsirForAyah(surahNumber, ayahNumber, id);
-      results.set(id, content);
-    })
-  );
-  return results;
-}
-
-// Get available translations
-export async function getAvailableTranslations(): Promise<Translation[]> {
-  const response = await fetchWithCache<{ translations: Translation[] }>(
-    `${QURAN_COM_API}/resources/translations`
-  );
-  return response.translations;
-}
-
-// Get translation for an ayah
-export async function getTranslationForAyah(
-  surahNumber: number,
-  ayahNumber: number,
-  translationId: number
-): Promise<TranslationContent | null> {
-  try {
-    const response = await fetchWithCache<{ translations: TranslationContent[] }>(
-      `${QURAN_COM_API}/verses/by_key/${surahNumber}:${ayahNumber}/translations/${translationId}`
-    );
-    return response.translations?.[0] || null;
   } catch {
     return null;
   }
@@ -262,41 +184,16 @@ export function toArabicNumerals(num: number): string {
     .join("");
 }
 
-// Get navigation info for an ayah
-export function getAyahNavigation(surahNumber: number, ayahNumber: number, totalAyahs: number) {
-  const hasPrev = ayahNumber > 1 || surahNumber > 1;
-  const hasNext = ayahNumber < totalAyahs || surahNumber < 114;
-  
-  let prevSurah = surahNumber;
-  let prevAyah = ayahNumber - 1;
-  let nextSurah = surahNumber;
-  let nextAyah = ayahNumber + 1;
-  
-  if (ayahNumber === 1 && surahNumber > 1) {
-    prevSurah = surahNumber - 1;
-    prevAyah = -1; // Will need to fetch previous surah's total ayahs
-  }
-  
-  if (ayahNumber >= totalAyahs && surahNumber < 114) {
-    nextSurah = surahNumber + 1;
-    nextAyah = 1;
-  }
-  
-  return { hasPrev, hasNext, prevSurah, prevAyah, nextSurah, nextAyah };
+// Arabic Tafsirs - verified IDs from Quran.com API
+export const ARABIC_TAFSIRS = [
+  { id: 169, name: "تفسير ابن كثير", author: "ابن كثير" },
+  { id: 170, name: "تفسير السعدي", author: "السعدي" },
+  { id: 164, name: "تفسير الطبري", author: "الطبري" },
+  { id: 168, name: "تفسير القرطبي", author: "القرطبي" },
+  { id: 74, name: "تفسير الجلالين", author: "الجلالين" },
+];
+
+// Revelation type in Arabic
+export function getRevelationTypeArabic(type: "Meccan" | "Medinan"): string {
+  return type === "Meccan" ? "مكية" : "مدنية";
 }
-
-// Default tafsirs to show (popular Arabic and English)
-export const DEFAULT_TAFSIR_IDS = [
-  169, // Ibn Kathir (Arabic)
-  164, // Al-Tabari
-  93,  // Ibn Kathir (English)
-];
-
-// Popular tafsirs for quick access
-export const POPULAR_TAFSIRS = [
-  { id: 169, name: "تفسير ابن كثير", nameEn: "Ibn Kathir (Arabic)" },
-  { id: 164, name: "تفسير الطبري", nameEn: "Al-Tabari" },
-  { id: 93, name: "Ibn Kathir (English)", nameEn: "Ibn Kathir (English)" },
-  { id: 168, name: "تفسير القرطبي", nameEn: "Al-Qurtubi" },
-  { id: 166, name: "تفسير البغوي", nameEn: "Al-Baghawi" },
-];

@@ -6,104 +6,110 @@
 
 @layer base {
   :root {
-    /* Warm cream/ivory background for calm reading */
-    --background: 40 30% 97%;
-    --foreground: 30 15% 15%;
+    /* Elegant warm parchment background */
+    --background: 38 35% 96%;
+    --foreground: 25 20% 12%;
 
-    --card: 40 25% 95%;
-    --card-foreground: 30 15% 15%;
+    --card: 40 30% 98%;
+    --card-foreground: 25 20% 12%;
 
-    --popover: 40 30% 97%;
-    --popover-foreground: 30 15% 15%;
+    --popover: 40 30% 98%;
+    --popover-foreground: 25 20% 12%;
 
-    /* Islamic emerald green */
-    --primary: 158 45% 28%;
-    --primary-foreground: 40 30% 97%;
+    /* Rich Islamic green */
+    --primary: 155 50% 25%;
+    --primary-foreground: 40 30% 98%;
 
-    /* Soft warm secondary */
-    --secondary: 35 20% 92%;
-    --secondary-foreground: 30 15% 20%;
+    /* Warm secondary */
+    --secondary: 38 25% 92%;
+    --secondary-foreground: 25 20% 18%;
 
-    --muted: 35 15% 90%;
-    --muted-foreground: 30 10% 45%;
+    --muted: 35 20% 90%;
+    --muted-foreground: 25 15% 40%;
 
     /* Gold accent */
-    --accent: 45 75% 50%;
-    --accent-foreground: 30 15% 15%;
+    --accent: 42 80% 48%;
+    --accent-foreground: 25 20% 12%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 40 30% 97%;
+    --destructive-foreground: 40 30% 98%;
 
-    --border: 35 20% 88%;
-    --input: 35 20% 88%;
-    --ring: 158 45% 28%;
+    --border: 35 25% 85%;
+    --input: 35 25% 85%;
+    --ring: 155 50% 25%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --surah-card-hover: 158 45% 95%;
-    --ayah-number: 158 45% 35%;
-    --bismillah: 30 20% 25%;
-    --verse-separator: 35 25% 85%;
+    --surah-card-hover: 155 40% 96%;
+    --ayah-number: 155 50% 30%;
+    --bismillah: 25 25% 20%;
+    --verse-separator: 35 30% 88%;
+    --gold-ornament: 42 80% 48%;
 
     --sidebar-background: 40 25% 95%;
-    --sidebar-foreground: 30 15% 15%;
-    --sidebar-primary: 158 45% 28%;
-    --sidebar-primary-foreground: 40 30% 97%;
-    --sidebar-accent: 35 20% 92%;
-    --sidebar-accent-foreground: 30 15% 20%;
-    --sidebar-border: 35 20% 88%;
-    --sidebar-ring: 158 45% 28%;
+    --sidebar-foreground: 25 20% 12%;
+    --sidebar-primary: 155 50% 25%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 38 25% 92%;
+    --sidebar-accent-foreground: 25 20% 18%;
+    --sidebar-border: 35 25% 85%;
+    --sidebar-ring: 155 50% 25%;
   }
 
   .dark {
-    --background: 30 15% 10%;
-    --foreground: 40 20% 92%;
+    --background: 25 20% 8%;
+    --foreground: 38 25% 92%;
 
-    --card: 30 12% 14%;
-    --card-foreground: 40 20% 92%;
+    --card: 25 18% 12%;
+    --card-foreground: 38 25% 92%;
 
-    --popover: 30 15% 10%;
-    --popover-foreground: 40 20% 92%;
+    --popover: 25 18% 12%;
+    --popover-foreground: 38 25% 92%;
 
-    --primary: 158 50% 40%;
-    --primary-foreground: 30 15% 10%;
+    --primary: 155 45% 45%;
+    --primary-foreground: 25 20% 8%;
 
-    --secondary: 30 10% 18%;
-    --secondary-foreground: 40 20% 92%;
+    --secondary: 25 15% 16%;
+    --secondary-foreground: 38 25% 92%;
 
-    --muted: 30 10% 20%;
-    --muted-foreground: 35 15% 60%;
+    --muted: 25 12% 18%;
+    --muted-foreground: 35 20% 55%;
 
-    --accent: 45 70% 55%;
-    --accent-foreground: 30 15% 10%;
+    --accent: 42 75% 55%;
+    --accent-foreground: 25 20% 8%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 40 20% 92%;
+    --destructive-foreground: 38 25% 92%;
 
-    --border: 30 10% 20%;
-    --input: 30 10% 20%;
-    --ring: 158 50% 40%;
+    --border: 25 12% 20%;
+    --input: 25 12% 20%;
+    --ring: 155 45% 45%;
 
-    --surah-card-hover: 158 30% 15%;
-    --ayah-number: 158 50% 45%;
-    --bismillah: 40 15% 85%;
-    --verse-separator: 30 10% 25%;
+    --surah-card-hover: 155 25% 14%;
+    --ayah-number: 155 45% 50%;
+    --bismillah: 38 20% 85%;
+    --verse-separator: 25 12% 22%;
+    --gold-ornament: 42 75% 55%;
 
-    --sidebar-background: 30 12% 12%;
-    --sidebar-foreground: 40 20% 92%;
-    --sidebar-primary: 158 50% 40%;
-    --sidebar-primary-foreground: 30 15% 10%;
-    --sidebar-accent: 30 10% 18%;
-    --sidebar-accent-foreground: 40 20% 92%;
-    --sidebar-border: 30 10% 20%;
-    --sidebar-ring: 158 50% 40%;
+    --sidebar-background: 25 18% 10%;
+    --sidebar-foreground: 38 25% 92%;
+    --sidebar-primary: 155 45% 45%;
+    --sidebar-primary-foreground: 25 20% 8%;
+    --sidebar-accent: 25 15% 16%;
+    --sidebar-accent-foreground: 38 25% 92%;
+    --sidebar-border: 25 12% 20%;
+    --sidebar-ring: 155 45% 45%;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    direction: rtl;
   }
 
   body {
@@ -141,29 +147,39 @@
 
   /* Ayah number badge */
   .ayah-number {
-    @apply inline-flex items-center justify-center rounded-full;
-    @apply bg-primary/10 text-primary;
-    @apply text-sm font-medium;
-    width: 2rem;
-    height: 2rem;
-    margin-inline-start: 0.5rem;
+    @apply inline-flex items-center justify-center;
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(155 45% 35%) 100%);
+    color: hsl(var(--primary-foreground));
+    @apply text-sm font-medium rounded-full;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-inline-start: 0.75rem;
     font-family: 'Amiri', serif;
+    box-shadow: 0 2px 8px hsl(var(--primary) / 0.25);
   }
 
   /* Bismillah styling */
   .bismillah {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     color: hsl(var(--bismillah));
     text-align: center;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid hsl(var(--verse-separator));
-    margin-bottom: 1.5rem;
+    padding: 2rem 1rem;
+    position: relative;
+  }
+
+  .bismillah::before,
+  .bismillah::after {
+    content: '✦';
+    color: hsl(var(--gold-ornament));
+    margin: 0 1rem;
+    font-size: 0.75rem;
+    vertical-align: middle;
   }
 
   @media (min-width: 768px) {
     .bismillah {
-      font-size: 2rem;
-      padding: 2rem 0;
+      font-size: 2.25rem;
+      padding: 2.5rem 1rem;
     }
   }
 
@@ -177,6 +193,26 @@
     background-color: hsl(var(--primary) / 0.2);
     color: hsl(var(--foreground));
   }
+
+  /* Tafsir text styling */
+  .tafsir-text {
+    font-family: 'Amiri', 'Noto Naskh Arabic', serif;
+    direction: rtl;
+    text-align: right;
+    line-height: 2;
+    font-size: 1.1rem;
+  }
+
+  .tafsir-text p {
+    margin-bottom: 1rem;
+  }
+
+  .tafsir-text h1, .tafsir-text h2, .tafsir-text h3 {
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+    color: hsl(var(--primary));
+  }
 }
 
 @layer utilities {
@@ -186,6 +222,22 @@
 
   /* Decorative Islamic pattern background */
   .islamic-pattern {
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='0.03'%3E%3Cpath d='M40 40L20 20v40l20-20zm0 0l20 20V20L40 40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Gold decorative line */
+  .gold-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(var(--gold-ornament)), transparent);
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px hsl(var(--primary) / 0.15);
   }
 }

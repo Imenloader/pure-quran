@@ -24,25 +24,17 @@ const SurahPage = () => {
   const { data: surah, isLoading, error, refetch } = useSurah(surahNumber);
 
   // Determine if we should show Bismillah
-  // Al-Fatiha (1) already includes it as part of the text
-  // At-Tawbah (9) doesn't have Bismillah
   const showBismillah = surahNumber !== 1 && surahNumber !== 9;
 
   return (
     <>
       <Helmet>
         <title>
-          {surah
-            ? `سورة ${surah.name} | ${surah.englishName} - القرآن الكريم`
-            : "القرآن الكريم"}
+          {surah ? `${surah.name} - القرآن الكريم` : "القرآن الكريم"}
         </title>
         <meta
           name="description"
-          content={
-            surah
-              ? `Read Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} surah.`
-              : "Read the Holy Quran online"
-          }
+          content={surah ? `اقرأ ${surah.name} كاملة مع التفسير` : "اقرأ القرآن الكريم"}
         />
         <link rel="canonical" href={`/surah/${slug}`} />
       </Helmet>
@@ -62,18 +54,22 @@ const SurahPage = () => {
             <article className="max-w-3xl mx-auto">
               <SurahHeader surah={surah} />
 
-              {/* Bismillah for surahs other than Al-Fatiha and At-Tawbah */}
+              {/* Bismillah */}
               {showBismillah && (
-                <div className="bismillah font-arabic arabic-text mt-8">
+                <div className="bismillah font-arabic arabic-text">
                   بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                 </div>
               )}
 
-              {/* Ayahs - Now Clickable */}
-              <div className="mt-6">
-                <p className="text-sm text-muted-foreground text-center mb-4 font-arabic">
+              {/* Hint */}
+              <div className="text-center mb-6 mt-4">
+                <p className="text-sm text-muted-foreground font-arabic bg-muted/50 inline-block px-4 py-2 rounded-full">
                   اضغط على أي آية لقراءة التفسير
                 </p>
+              </div>
+
+              {/* Ayahs */}
+              <div className="bg-card rounded-2xl border border-border p-4 md:p-6 shadow-sm">
                 {surah.ayahs.map((ayah) => (
                   <AyahDisplay
                     key={ayah.number}
