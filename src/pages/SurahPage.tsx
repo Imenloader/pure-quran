@@ -69,12 +69,16 @@ const SurahPage = () => {
                 </div>
               )}
 
-              {/* Ayahs */}
+              {/* Ayahs - Now Clickable */}
               <div className="mt-6">
+                <p className="text-sm text-muted-foreground text-center mb-4 font-arabic">
+                  اضغط على أي آية لقراءة التفسير
+                </p>
                 {surah.ayahs.map((ayah) => (
                   <AyahDisplay
                     key={ayah.number}
                     ayah={ayah}
+                    surahNumber={surahNumber}
                     showBismillah={false}
                   />
                 ))}
