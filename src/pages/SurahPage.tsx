@@ -34,7 +34,7 @@ const SurahPage = () => {
     try {
       await generateSurahPDF(surah);
       toast.success("تم تحميل الملف بنجاح");
-    } catch (error) {
+    } catch {
       toast.error("فشل تحميل الملف");
     }
   };
@@ -55,11 +55,11 @@ const SurahPage = () => {
 
         <main className="flex-1">
           {/* Breadcrumb */}
-          <div className="bg-secondary border-b border-border py-3">
+          <div className="border-b border-border py-3 bg-secondary/30">
             <div className="container">
               <div className="flex items-center justify-between">
-                <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Link to="/" className="text-link hover:underline">الرئيسية</Link>
+                <nav className="flex items-center gap-2 text-sm text-muted-foreground font-arabic">
+                  <Link to="/" className="hover:text-primary transition-colors">الرئيسية</Link>
                   <ChevronRight className="h-4 w-4 rotate-180" />
                   <span>فهرس السور</span>
                   {surah && (
@@ -71,40 +71,40 @@ const SurahPage = () => {
                 </nav>
                 
                 {surah && (
-                  <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="gap-2">
+                  <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="gap-2 text-muted-foreground hover:text-foreground">
                     <Download className="h-4 w-4" />
-                    <span className="hidden sm:inline">تحميل PDF</span>
+                    <span className="hidden sm:inline font-arabic">تحميل</span>
                   </Button>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="container py-6">
+          <div className="container py-8">
             {isLoading ? (
               <LoadingSpinner message="جاري تحميل السورة..." />
             ) : error ? (
               <ErrorMessage message="فشل تحميل السورة" onRetry={() => refetch()} />
             ) : surah ? (
-              <article className="max-w-4xl mx-auto">
+              <article className="max-w-3xl mx-auto">
                 <SurahHeader surah={surah} />
 
                 {/* Bismillah */}
                 {showBismillah && (
-                  <div className="bismillah fade-enter border-b border-border" style={{ animationDelay: "0.1s" }}>
+                  <div className="bismillah fade-enter border-b border-divider" style={{ animationDelay: "0.1s" }}>
                     بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                   </div>
                 )}
 
                 {/* Reading hint */}
-                <p className="text-center text-sm text-muted-foreground py-4 bg-secondary/50 rounded mb-4 fade-enter" style={{ animationDelay: "0.15s" }}>
-                  اضغط على أي آية لقراءة التفسير · اضغط على القلب لإضافة الآية للمفضلة
+                <p className="text-center text-xs text-muted-foreground/70 py-5 font-arabic fade-enter" style={{ animationDelay: "0.15s" }}>
+                  اضغط على الآية لقراءة تفسيرها
                 </p>
 
-                {/* Verses */}
+                {/* Verses - Mushaf-style flowing */}
                 <div className="border border-border rounded-lg bg-card overflow-hidden fade-enter" style={{ animationDelay: "0.2s" }}>
                   {surah.ayahs.map((ayah) => (
-                    <div key={ayah.number} className="border-b border-border/50 last:border-b-0">
+                    <div key={ayah.number} className="border-b border-border/40 last:border-b-0">
                       <AyahDisplay ayah={ayah} surahNumber={surahNumber} surahName={surah.name} />
                     </div>
                   ))}

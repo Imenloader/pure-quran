@@ -34,14 +34,14 @@ const Index = () => {
 
         <main className="flex-1">
           {/* Hero Section */}
-          <div className="bg-secondary py-6 border-b border-border">
+          <div className="py-10 md:py-14 border-b border-border">
             <div className="container">
-              <div className="max-w-3xl mx-auto">
-                <h2 className="font-arabic text-2xl font-bold text-foreground text-center mb-2">
+              <div className="max-w-3xl mx-auto text-center">
+                <h2 className="font-amiri text-3xl md:text-4xl font-bold text-foreground mb-3">
                   فهرس سور القرآن الكريم
                 </h2>
-                <p className="text-center text-muted-foreground text-sm mb-4">
-                  اختر سورة للقراءة والتفسير
+                <p className="text-muted-foreground mb-8 font-arabic">
+                  اختر سورة للقراءة والتدبر مع التفسير
                 </p>
                 
                 {/* Search */}
@@ -49,7 +49,7 @@ const Index = () => {
                   <SearchBar
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    placeholder="ابحث عن سورة بالاسم أو الرقم..."
+                    placeholder="ابحث عن سورة..."
                   />
                 </div>
               </div>
@@ -57,7 +57,7 @@ const Index = () => {
           </div>
 
           {/* Content */}
-          <div className="container py-6">
+          <div className="container py-8">
             {isLoading ? (
               <LoadingSpinner message="جاري تحميل السور..." />
             ) : error ? (
@@ -66,32 +66,34 @@ const Index = () => {
                 onRetry={() => refetch()}
               />
             ) : filteredSurahs.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">لم يتم العثور على نتائج</p>
+              <div className="text-center py-16">
+                <p className="text-muted-foreground font-arabic">لم يتم العثور على نتائج</p>
               </div>
             ) : (
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-3xl mx-auto">
                 {/* Table Header */}
-                <div className="bg-table-header border border-table-border rounded-t-md">
-                  <div className="flex items-center gap-4 py-2.5 px-4 text-sm font-semibold text-muted-foreground">
-                    <div className="w-8 text-center">#</div>
-                    <div className="flex-1">اسم السورة</div>
-                    <div>عدد الآيات</div>
-                    <div className="hidden sm:block w-12">النوع</div>
+                <div className="bg-secondary border border-border rounded-t-lg">
+                  <div className="flex items-center gap-4 py-3 px-4 text-xs font-arabic font-semibold text-muted-foreground">
+                    <div className="w-10 text-center">الرقم</div>
+                    <div className="flex-1">السورة</div>
+                    <div>الآيات</div>
+                    <div className="hidden sm:block w-12 text-center">النوع</div>
                   </div>
                 </div>
 
                 {/* Surah List */}
-                <div className="border-x border-b border-table-border rounded-b-md bg-card">
+                <div className="border-x border-b border-border rounded-b-lg bg-card">
                   {filteredSurahs.map((surah, index) => (
                     <SurahCard key={surah.number} surah={surah} index={index} />
                   ))}
                 </div>
 
                 {/* Stats */}
-                <div className="text-center mt-6 text-sm text-muted-foreground">
-                  إجمالي السور: {toArabicNumerals(filteredSurahs.length)} من ١١٤
-                </div>
+                {searchQuery && (
+                  <div className="text-center mt-6 text-sm text-muted-foreground font-arabic">
+                    عدد النتائج: {toArabicNumerals(filteredSurahs.length)}
+                  </div>
+                )}
               </div>
             )}
           </div>

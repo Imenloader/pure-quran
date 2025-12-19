@@ -37,7 +37,7 @@ export function AyahDisplay({ ayah, surahNumber, surahName }: AyahDisplayProps) 
     <div className="group relative">
       <Link
         to={`/surah/${surahNumber}/ayah/${ayah.numberInSurah}`}
-        className="block py-4 px-4 pr-12 table-row-hover transition-colors cursor-pointer"
+        className="block py-5 px-4 md:px-6 pr-14 ayah-hover transition-colors cursor-pointer"
       >
         <p className="quran-text">
           {ayah.text}
@@ -45,13 +45,13 @@ export function AyahDisplay({ ayah, surahNumber, surahName }: AyahDisplayProps) 
         </p>
       </Link>
       
-      {/* Favorite Button */}
+      {/* Favorite Button - subtle */}
       <Button
         variant="ghost"
         size="icon"
         onClick={handleFavorite}
-        className={`absolute top-3 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity ${
-          isFav ? "opacity-100 text-red-500 hover:text-red-600" : "text-muted-foreground hover:text-red-500"
+        className={`absolute top-4 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-all duration-200 ${
+          isFav ? "opacity-100 text-primary hover:text-primary/80" : "text-muted-foreground/50 hover:text-primary"
         }`}
       >
         <Heart className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />

@@ -64,25 +64,25 @@ const AyahPage = () => {
 
         <main className="flex-1">
           {/* Breadcrumb */}
-          <div className="bg-secondary border-b border-border py-3">
+          <div className="border-b border-border py-3 bg-secondary/30">
             <div className="container">
-              <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Link to="/" className="text-link hover:underline">الرئيسية</Link>
+              <nav className="flex items-center gap-2 text-sm text-muted-foreground font-arabic">
+                <Link to="/" className="hover:text-primary transition-colors">الرئيسية</Link>
                 <ChevronRight className="h-4 w-4 rotate-180" />
                 {surah && (
                   <>
-                    <Link to={`/surah/${getSurahSlug(surah)}`} className="text-link hover:underline">
+                    <Link to={`/surah/${getSurahSlug(surah)}`} className="hover:text-primary transition-colors">
                       {surah.name}
                     </Link>
                     <ChevronRight className="h-4 w-4 rotate-180" />
                   </>
                 )}
-                <span className="text-foreground">تفسير الآية {toArabicNumerals(ayahNumber)}</span>
+                <span className="text-foreground">الآية {toArabicNumerals(ayahNumber)}</span>
               </nav>
             </div>
           </div>
 
-          <div className="container py-6">
+          <div className="container py-8 md:py-12">
             {isLoading ? (
               <LoadingSpinner message="جاري تحميل الآية..." />
             ) : error ? (
@@ -90,36 +90,34 @@ const AyahPage = () => {
             ) : !isValidAyah || !ayah || !surah ? (
               <Navigate to={`/surah/${getSurahSlug({ number: surahNumber, name: "", englishName: `surah-${surahNumber}`, englishNameTranslation: "", numberOfAyahs: 0, revelationType: "Meccan" })}`} replace />
             ) : (
-              <article className="max-w-4xl mx-auto">
+              <article className="max-w-3xl mx-auto">
                 {/* Page Title */}
-                <header className="text-center mb-6 fade-enter">
-                  <h1 className="font-arabic text-xl font-bold text-foreground mb-2">
-                    تفسير {surah.name}
-                  </h1>
-                  <p className="text-muted-foreground text-sm">
-                    الآية {toArabicNumerals(ayahNumber)} من {toArabicNumerals(surah.numberOfAyahs)}
+                <header className="text-center mb-8 fade-enter">
+                  <p className="text-muted-foreground font-arabic text-sm mb-2">
+                    {surah.name} · الآية {toArabicNumerals(ayahNumber)} من {toArabicNumerals(surah.numberOfAyahs)}
                   </p>
                 </header>
 
-                {/* Ayah Display - Decorative Frame */}
-                <div className="bg-card rounded-lg border-2 border-primary/30 p-6 md:p-8 mb-6 fade-enter relative" style={{ animationDelay: "0.1s" }}>
-                  {/* Decorative corners */}
-                  <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary/40" />
-                  <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary/40" />
-                  <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary/40" />
-                  <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary/40" />
-                  
-                  <p className="quran-text text-center text-2xl md:text-3xl leading-loose">
+                {/* Ayah Display - Large Centered */}
+                <div className="bg-card rounded-xl border border-border p-8 md:p-12 mb-8 fade-enter text-center" style={{ animationDelay: "0.1s" }}>
+                  <p className="quran-text-large mb-6">
                     {ayah.text}
-                    <span className="verse-number">{toArabicNumerals(ayahNumber)}</span>
                   </p>
+                  <span className="verse-number-circle inline-block">
+                    {toArabicNumerals(ayahNumber)}
+                  </span>
+                </div>
+
+                {/* Elegant divider */}
+                <div className="divider-ornament max-w-sm mx-auto mb-8 fade-enter" style={{ animationDelay: "0.15s" }}>
+                  <span className="text-primary text-sm">❖</span>
                 </div>
 
                 {/* Ayah Navigation */}
-                <nav className="flex items-center justify-between mb-8 fade-enter" style={{ animationDelay: "0.15s" }}>
+                <nav className="flex items-center justify-between mb-10 fade-enter" style={{ animationDelay: "0.15s" }}>
                   {getNextLink() ? (
                     <Link to={getNextLink()!}>
-                      <Button variant="outline" size="sm" className="gap-2">
+                      <Button variant="outline" size="sm" className="gap-2 font-arabic">
                         <span>الآية التالية</span>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
@@ -127,14 +125,14 @@ const AyahPage = () => {
                   ) : <div />}
 
                   <Link to={`/surah/${getSurahSlug(surah)}`}>
-                    <Button variant="ghost" size="sm" className="text-link">
+                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 font-arabic">
                       العودة للسورة
                     </Button>
                   </Link>
 
                   {getPrevLink() ? (
                     <Link to={getPrevLink()!}>
-                      <Button variant="outline" size="sm" className="gap-2">
+                      <Button variant="outline" size="sm" className="gap-2 font-arabic">
                         <ChevronRight className="h-4 w-4" />
                         <span>الآية السابقة</span>
                       </Button>
@@ -142,7 +140,7 @@ const AyahPage = () => {
                   ) : <div />}
                 </nav>
 
-                {/* Tafsir Section - All tafsirs displayed vertically */}
+                {/* Tafsir Section - Tabbed Arabic Tafsirs */}
                 <TafsirTabs surahNumber={surahNumber} ayahNumber={ayahNumber} />
               </article>
             )}
