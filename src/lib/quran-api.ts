@@ -184,14 +184,55 @@ export function toArabicNumerals(num: number): string {
     .join("");
 }
 
-// Arabic Tafsirs - verified IDs from Quran.com API
+// STRICT ARABIC-ONLY TAFSIR WHITELIST
+// Only these Arabic tafsir IDs are allowed - NO other languages permitted
 export const ARABIC_TAFSIRS = [
-  { id: 169, name: "تفسير ابن كثير", author: "ابن كثير" },
-  { id: 170, name: "تفسير السعدي", author: "السعدي" },
-  { id: 164, name: "تفسير الطبري", author: "الطبري" },
-  { id: 168, name: "تفسير القرطبي", author: "القرطبي" },
-  { id: 74, name: "تفسير الجلالين", author: "الجلالين" },
-];
+  { id: 169, name: "تفسير ابن كثير", author: "ابن كثير", language: "ar" },
+  { id: 170, name: "تفسير السعدي", author: "السعدي", language: "ar" },
+  { id: 164, name: "تفسير الطبري", author: "الطبري", language: "ar" },
+  { id: 168, name: "تفسير القرطبي", author: "القرطبي", language: "ar" },
+  { id: 74, name: "تفسير الجلالين", author: "الجلالين", language: "ar" },
+] as const;
+
+// Whitelist of allowed Arabic tafsir IDs
+export const ALLOWED_ARABIC_TAFSIR_IDS: Set<number> = new Set(ARABIC_TAFSIRS.map(t => t.id));
+
+// Validate if a tafsir ID is in the Arabic whitelist
+export function isArabicTafsir(tafsirId: number): boolean {
+  return ALLOWED_ARABIC_TAFSIR_IDS.has(tafsirId);
+}
+
+// Get tafsir content ONLY if it's Arabic - reject all non-Arabic content
+export async function getArabicTafsirForAyah(
+  surahNumber: number,
+  ayahNumber: number,
+  tafsirId: number
+): Promise<TafsirContent | null> {
+  // Strict check: reject if not in Arabic whitelist
+  if (!isArabicTafsir(tafsirId)) {
+    console.warn(`Rejected non-Arabic tafsir ID: ${tafsirId}`);
+    return null;
+  }
+
+  try {
+    const verseKey = `${surahNumber}:${ayahNumber}`;
+    const response = await fetchWithCache<{ tafsir: TafsirContent }>(
+      `${QURAN_COM_API}/tafsirs/${tafsirId}/by_ayah/${verseKey}`
+    );
+    
+    // Additional validation: ensure content is Arabic
+    if (response.tafsir) {
+      const tafsirInfo = ARABIC_TAFSIRS.find(t => t.id === tafsirId);
+      if (!tafsirInfo) {
+        return null;
+      }
+      return response.tafsir;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 // Revelation type in Arabic
 export function getRevelationTypeArabic(type: "Meccan" | "Medinan"): string {
