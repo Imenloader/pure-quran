@@ -6,7 +6,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ARABIC_TAFSIRS, toArabicNumerals } from "@/lib/quran-api";
+import { toArabicNumerals, TafsirSource } from "@/lib/quran-api";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -27,32 +27,45 @@ const SURAH_NAMES = [
 ];
 
 interface TafsirStats {
-  tafsir_id: number;
-  tafsir_name: string;
+  tafsir_key: string;
+  tafsir_name_ar: string;
+  author_ar: string;
   count: number;
 }
 
 const TafsirImportPage = () => {
+  const [sources, setSources] = useState<TafsirSource[]>([]);
   const [stats, setStats] = useState<TafsirStats[]>([]);
-  const [importing, setImporting] = useState<number | null>(null);
+  const [importing, setImporting] = useState<string | null>(null);
   const [currentSurah, setCurrentSurah] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  // Fetch current stats
+  // Fetch tafsir sources and stats
   const fetchStats = async () => {
     setLoading(true);
     try {
+      // Fetch sources
+      const { data: sourcesData } = await supabase
+        .from('tafsir_sources')
+        .select('*')
+        .eq('enabled', true)
+        .order('display_order');
+
+      setSources(sourcesData || []);
+
+      // Fetch counts for each source
       const results: TafsirStats[] = [];
       
-      for (const tafsir of ARABIC_TAFSIRS) {
+      for (const source of sourcesData || []) {
         const { count } = await supabase
-          .from('tafsir_content')
+          .from('tafsir_texts')
           .select('*', { count: 'exact', head: true })
-          .eq('tafsir_id', tafsir.id);
+          .eq('tafsir_key', source.tafsir_key);
         
         results.push({
-          tafsir_id: tafsir.id,
-          tafsir_name: tafsir.name,
+          tafsir_key: source.tafsir_key,
+          tafsir_name_ar: source.tafsir_name_ar,
+          author_ar: source.author_ar,
           count: count || 0,
         });
       }
@@ -69,8 +82,8 @@ const TafsirImportPage = () => {
     fetchStats();
   }, []);
 
-  const handleImportSurah = async (tafsirId: number, surahNum: number) => {
-    setImporting(tafsirId);
+  const handleImportSurah = async (tafsirKey: string, surahNum: number) => {
+    setImporting(tafsirKey);
     setCurrentSurah(surahNum);
     
     try {
@@ -83,7 +96,7 @@ const TafsirImportPage = () => {
           },
           body: JSON.stringify({
             action: 'import',
-            tafsirId,
+            tafsirKey,
             surahNumber: surahNum,
           }),
         }
@@ -97,7 +110,7 @@ const TafsirImportPage = () => {
         
         // Continue to next surah if not last
         if (surahNum < 114) {
-          handleImportSurah(tafsirId, surahNum + 1);
+          handleImportSurah(tafsirKey, surahNum + 1);
         } else {
           setImporting(null);
           toast.success('اكتمل استيراد التفسير');
@@ -169,28 +182,26 @@ const TafsirImportPage = () => {
 
               {/* Tafsir List */}
               <div className="space-y-4">
-                {ARABIC_TAFSIRS.map((tafsir) => {
-                  const stat = stats.find(s => s.tafsir_id === tafsir.id);
-                  const count = stat?.count || 0;
-                  const progress = getProgress(count);
-                  const isCurrentImporting = importing === tafsir.id;
+                {stats.map((stat) => {
+                  const progress = getProgress(stat.count);
+                  const isCurrentImporting = importing === stat.tafsir_key;
 
                   return (
                     <div
-                      key={tafsir.id}
+                      key={stat.tafsir_key}
                       className="bg-card border border-border rounded-lg p-5"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          {getStatusIcon(count)}
+                          {getStatusIcon(stat.count)}
                           <div>
-                            <h3 className="font-amiri font-bold text-lg">{tafsir.name}</h3>
-                            <p className="text-xs text-muted-foreground font-arabic">{tafsir.author}</p>
+                            <h3 className="font-amiri font-bold text-lg">{stat.tafsir_name_ar}</h3>
+                            <p className="text-xs text-muted-foreground font-arabic">{stat.author_ar}</p>
                           </div>
                         </div>
                         <div className="text-left">
                           <p className="font-arabic text-sm">
-                            {toArabicNumerals(count)} / ٦٢٣٦ آية
+                            {toArabicNumerals(stat.count)} / ٦٢٣٦ آية
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {progress}%
@@ -207,10 +218,10 @@ const TafsirImportPage = () => {
                       )}
 
                       <div className="flex gap-2 justify-end">
-                        {count < 6236 && (
+                        {stat.count < 6236 && (
                           <Button
                             size="sm"
-                            onClick={() => handleImportSurah(tafsir.id, 1)}
+                            onClick={() => handleImportSurah(stat.tafsir_key, 1)}
                             disabled={importing !== null}
                             className="gap-2 font-arabic"
                           >
@@ -218,7 +229,7 @@ const TafsirImportPage = () => {
                             {isCurrentImporting ? 'جاري الاستيراد...' : 'بدء الاستيراد'}
                           </Button>
                         )}
-                        {count >= 6236 && (
+                        {stat.count >= 6236 && (
                           <span className="text-sm text-green-600 font-arabic">مكتمل ✓</span>
                         )}
                       </div>

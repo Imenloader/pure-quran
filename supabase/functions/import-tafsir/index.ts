@@ -6,34 +6,44 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Arabic-only tafsir sources
-const ARABIC_TAFSIRS = [
-  { id: 169, name: "تفسير ابن كثير", author: "ابن كثير" },
-  { id: 170, name: "تفسير السعدي", author: "السعدي" },
-  { id: 164, name: "تفسير الطبري", author: "الطبري" },
-  { id: 168, name: "تفسير القرطبي", author: "القرطبي" },
-  { id: 74, name: "تفسير الجلالين", author: "الجلالين" },
-];
-
 const QURAN_COM_API = "https://api.quran.com/api/v4";
 
-// Validate Arabic text (must contain Arabic characters)
-function isArabicText(text: string): boolean {
-  if (!text || text.trim().length === 0) return false;
-  // Arabic Unicode range: \u0600-\u06FF (Arabic), \u0750-\u077F (Arabic Supplement)
-  const arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
-  return arabicPattern.test(text);
+// Count Arabic characters in text
+function countArabicChars(text: string): number {
+  const arabicPattern = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g;
+  const matches = text.match(arabicPattern);
+  return matches ? matches.length : 0;
 }
 
-// Clean HTML tags from text
+// Check if text is predominantly Arabic (more than 50% Arabic chars)
+function isPredominantlyArabic(text: string): boolean {
+  if (!text || text.trim().length === 0) return false;
+  
+  // Remove whitespace and punctuation for accurate counting
+  const cleanText = text.replace(/[\s\d.,،؛:!?؟\-_()[\]{}'"«»]/g, '');
+  if (cleanText.length === 0) return false;
+  
+  const arabicCount = countArabicChars(cleanText);
+  const ratio = arabicCount / cleanText.length;
+  
+  // Must be at least 60% Arabic
+  return ratio >= 0.6;
+}
+
+// Clean HTML tags and decode entities
 function cleanText(text: string): string {
   return text
+    // Remove HTML tags
     .replace(/<[^>]*>/g, " ")
+    // Decode HTML entities
     .replace(/&nbsp;/g, " ")
     .replace(/&quot;/g, '"')
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
+    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num)))
+    .replace(/&#x([a-fA-F0-9]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    // Normalize whitespace
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -51,27 +61,60 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { action, tafsirId, surahNumber } = await req.json();
+    const { action, tafsirKey, surahNumber } = await req.json();
 
-    if (action === 'status') {
-      // Return current import status
+    if (action === 'sources') {
+      // Return all enabled tafsir sources
       const { data, error } = await supabase
-        .from('tafsir_import_status')
+        .from('tafsir_sources')
         .select('*')
-        .order('tafsir_id');
+        .eq('enabled', true)
+        .order('display_order');
 
       if (error) throw error;
 
-      return new Response(JSON.stringify({ status: data }), {
+      return new Response(JSON.stringify({ sources: data }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (action === 'status') {
+      // Return import progress for all tafsirs
+      const { data: sources } = await supabase
+        .from('tafsir_sources')
+        .select('tafsir_key, tafsir_name_ar, api_id')
+        .eq('enabled', true);
+
+      const stats = [];
+      for (const source of sources || []) {
+        const { count } = await supabase
+          .from('tafsir_texts')
+          .select('*', { count: 'exact', head: true })
+          .eq('tafsir_key', source.tafsir_key);
+        
+        stats.push({
+          tafsir_key: source.tafsir_key,
+          tafsir_name_ar: source.tafsir_name_ar,
+          imported_count: count || 0,
+          total_count: 6236,
+        });
+      }
+
+      return new Response(JSON.stringify({ status: stats }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     if (action === 'import') {
-      // Import a specific tafsir for a specific surah
-      const tafsir = ARABIC_TAFSIRS.find(t => t.id === tafsirId);
-      if (!tafsir) {
-        return new Response(JSON.stringify({ error: 'Invalid tafsir ID' }), {
+      // Get tafsir source info from DB
+      const { data: source, error: sourceError } = await supabase
+        .from('tafsir_sources')
+        .select('*')
+        .eq('tafsir_key', tafsirKey)
+        .single();
+
+      if (sourceError || !source) {
+        return new Response(JSON.stringify({ error: 'Invalid tafsir key' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -80,9 +123,10 @@ serve(async (req) => {
       const surahNum = surahNumber || 1;
       const ayahCount = SURAH_AYAH_COUNTS[surahNum - 1];
       
-      console.log(`Importing ${tafsir.name} for Surah ${surahNum} (${ayahCount} ayahs)`);
+      console.log(`Importing ${source.tafsir_name_ar} for Surah ${surahNum} (${ayahCount} ayahs)`);
 
       let importedCount = 0;
+      let rejectedCount = 0;
       const batchSize = 10;
       
       for (let batch = 0; batch < Math.ceil(ayahCount / batchSize); batch++) {
@@ -94,7 +138,7 @@ serve(async (req) => {
           try {
             const verseKey = `${surahNum}:${ayah}`;
             const response = await fetch(
-              `${QURAN_COM_API}/tafsirs/${tafsirId}/by_ayah/${verseKey}`
+              `${QURAN_COM_API}/tafsirs/${source.api_id}/by_ayah/${verseKey}`
             );
 
             if (response.ok) {
@@ -102,36 +146,37 @@ serve(async (req) => {
               if (data.tafsir && data.tafsir.text) {
                 const cleanedText = cleanText(data.tafsir.text);
                 
-                // Validate Arabic content
-                if (isArabicText(cleanedText)) {
+                // Validate predominantly Arabic content
+                if (isPredominantlyArabic(cleanedText)) {
                   tafsirRecords.push({
                     surah_number: surahNum,
                     ayah_number: ayah,
-                    tafsir_id: tafsirId,
-                    tafsir_name: tafsir.name,
-                    tafsir_author: tafsir.author,
-                    text: cleanedText,
+                    tafsir_key: source.tafsir_key,
+                    text_ar: cleanedText,
                   });
                   importedCount++;
                 } else {
-                  console.log(`Rejected non-Arabic content for ${verseKey}`);
+                  rejectedCount++;
+                  console.log(`Rejected non-Arabic content for ${verseKey} (tafsir: ${source.tafsir_key})`);
                 }
               }
+            } else {
+              console.log(`API returned ${response.status} for ${verseKey}`);
             }
             
-            // Rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Rate limiting - be gentle with the API
+            await new Promise(resolve => setTimeout(resolve, 150));
           } catch (err) {
             console.error(`Error fetching ${surahNum}:${ayah}:`, err);
           }
         }
 
-        // Insert batch
+        // Insert batch using upsert
         if (tafsirRecords.length > 0) {
           const { error: insertError } = await supabase
-            .from('tafsir_content')
+            .from('tafsir_texts')
             .upsert(tafsirRecords, {
-              onConflict: 'surah_number,ayah_number,tafsir_id',
+              onConflict: 'surah_number,ayah_number,tafsir_key',
             });
 
           if (insertError) {
@@ -140,36 +185,14 @@ serve(async (req) => {
         }
       }
 
+      console.log(`Completed: imported ${importedCount}, rejected ${rejectedCount}`);
+
       return new Response(JSON.stringify({ 
         success: true,
         imported: importedCount,
+        rejected: rejectedCount,
         surah: surahNum,
-        tafsir: tafsir.name 
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (action === 'import-all') {
-      // Start importing all tafsirs (runs in background)
-      console.log('Starting full tafsir import...');
-
-      // Initialize status for all tafsirs
-      for (const tafsir of ARABIC_TAFSIRS) {
-        await supabase
-          .from('tafsir_import_status')
-          .upsert({
-            tafsir_id: tafsir.id,
-            tafsir_name: tafsir.name,
-            total_ayahs: 6236,
-            imported_ayahs: 0,
-            status: 'pending',
-          }, { onConflict: 'tafsir_id' });
-      }
-
-      return new Response(JSON.stringify({ 
-        message: 'Import started. Use status action to check progress.',
-        tafsirs: ARABIC_TAFSIRS.map(t => t.name)
+        tafsir: source.tafsir_name_ar 
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
