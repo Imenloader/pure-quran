@@ -130,22 +130,56 @@ export function parseSurahSlug(slug: string): number {
   return number;
 }
 
+// Normalize Arabic text for search (remove diacritics)
+function normalizeForSearch(text: string): string {
+  return text
+    // Remove Arabic diacritics
+    .replace(/[\u064B-\u0652\u0670\u0610-\u061A\u06D6-\u06ED]/g, '')
+    // Normalize Alef variants
+    .replace(/[أإآٱ]/g, 'ا')
+    // Normalize Alef Maqsura
+    .replace(/ى/g, 'ي')
+    // Normalize Taa Marbuta (optional)
+    .replace(/ة/g, 'ه')
+    // Remove extra whitespace
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Search Surahs by name or number
 export function searchSurahs(surahs: Surah[], query: string): Surah[] {
-  const normalizedQuery = query.toLowerCase().trim();
+  const trimmedQuery = query.trim();
   
-  if (!normalizedQuery) {
+  if (!trimmedQuery) {
     return surahs;
   }
 
-  // Check if query is a number
-  const numberQuery = parseInt(normalizedQuery, 10);
-  if (!isNaN(numberQuery)) {
+  // Check if query is a number (Arabic or English)
+  const arabicToEnglish: Record<string, string> = {
+    '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+    '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+  };
+  
+  const englishQuery = trimmedQuery
+    .split('')
+    .map(char => arabicToEnglish[char] || char)
+    .join('');
+  
+  const numberQuery = parseInt(englishQuery, 10);
+  if (!isNaN(numberQuery) && numberQuery >= 1 && numberQuery <= 114) {
     return surahs.filter((s) => s.number === numberQuery);
   }
 
-  // Search by Arabic name only
-  return surahs.filter((s) => s.name.includes(query));
+  // Normalize query for Arabic search
+  const normalizedQuery = normalizeForSearch(trimmedQuery);
+  
+  // Search by Arabic name (normalized)
+  return surahs.filter((s) => {
+    const normalizedName = normalizeForSearch(s.name);
+    // Check if normalized name contains normalized query
+    return normalizedName.includes(normalizedQuery) || 
+           s.name.includes(trimmedQuery);
+  });
 }
 
 // Convert Arabic numerals to Eastern Arabic numerals (٠١٢٣٤٥٦٧٨٩)
