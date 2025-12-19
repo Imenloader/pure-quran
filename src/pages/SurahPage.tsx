@@ -1,6 +1,6 @@
 import { useParams, Navigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Download } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SurahHeader } from "@/components/SurahHeader";
@@ -8,8 +8,11 @@ import { AyahDisplay } from "@/components/AyahDisplay";
 import { SurahNavigation } from "@/components/SurahNavigation";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Button } from "@/components/ui/button";
 import { useAllSurahs, useSurah } from "@/hooks/useQuranData";
 import { parseSurahSlug } from "@/lib/quran-api";
+import { generateSurahPDF } from "@/lib/pdf-generator";
+import { toast } from "sonner";
 
 const SurahPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -25,6 +28,16 @@ const SurahPage = () => {
   const { data: surah, isLoading, error, refetch } = useSurah(surahNumber);
 
   const showBismillah = surahNumber !== 1 && surahNumber !== 9;
+
+  const handleDownloadPDF = async () => {
+    if (!surah) return;
+    try {
+      await generateSurahPDF(surah);
+      toast.success("تم تحميل الملف بنجاح");
+    } catch (error) {
+      toast.error("فشل تحميل الملف");
+    }
+  };
 
   return (
     <>
@@ -44,17 +57,26 @@ const SurahPage = () => {
           {/* Breadcrumb */}
           <div className="bg-secondary border-b border-border py-3">
             <div className="container">
-              <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Link to="/" className="text-link hover:underline">الرئيسية</Link>
-                <ChevronRight className="h-4 w-4 rotate-180" />
-                <span>فهرس السور</span>
+              <div className="flex items-center justify-between">
+                <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Link to="/" className="text-link hover:underline">الرئيسية</Link>
+                  <ChevronRight className="h-4 w-4 rotate-180" />
+                  <span>فهرس السور</span>
+                  {surah && (
+                    <>
+                      <ChevronRight className="h-4 w-4 rotate-180" />
+                      <span className="text-foreground">{surah.name}</span>
+                    </>
+                  )}
+                </nav>
+                
                 {surah && (
-                  <>
-                    <ChevronRight className="h-4 w-4 rotate-180" />
-                    <span className="text-foreground">{surah.name}</span>
-                  </>
+                  <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="gap-2">
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">تحميل PDF</span>
+                  </Button>
                 )}
-              </nav>
+              </div>
             </div>
           </div>
 
@@ -76,14 +98,14 @@ const SurahPage = () => {
 
                 {/* Reading hint */}
                 <p className="text-center text-sm text-muted-foreground py-4 bg-secondary/50 rounded mb-4 fade-enter" style={{ animationDelay: "0.15s" }}>
-                  اضغط على أي آية لقراءة التفسير
+                  اضغط على أي آية لقراءة التفسير · اضغط على القلب لإضافة الآية للمفضلة
                 </p>
 
                 {/* Verses */}
                 <div className="border border-border rounded-lg bg-card overflow-hidden fade-enter" style={{ animationDelay: "0.2s" }}>
                   {surah.ayahs.map((ayah) => (
                     <div key={ayah.number} className="border-b border-border/50 last:border-b-0">
-                      <AyahDisplay ayah={ayah} surahNumber={surahNumber} />
+                      <AyahDisplay ayah={ayah} surahNumber={surahNumber} surahName={surah.name} />
                     </div>
                   ))}
                 </div>
