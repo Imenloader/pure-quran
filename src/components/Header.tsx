@@ -1,11 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Book } from "lucide-react";
+import { Home, Search, Book, Heart } from "lucide-react";
 import { SettingsSheet } from "@/components/SettingsSheet";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 export function Header() {
   const location = useLocation();
+  const { favorites } = useFavorites();
   const isHome = location.pathname === "/";
   const isSearch = location.pathname === "/search";
+  const isFavorites = location.pathname === "/favorites";
 
   return (
     <header className="sticky top-0 z-50">
@@ -18,6 +21,15 @@ export function Header() {
             <Link to="/" className="hover:text-white transition-colors">فهرس السور</Link>
             <span className="text-neutral-600">|</span>
             <Link to="/search" className="hover:text-white transition-colors">البحث</Link>
+            <span className="text-neutral-600">|</span>
+            <Link to="/favorites" className="hover:text-white transition-colors flex items-center gap-1">
+              المفضلة
+              {favorites.length > 0 && (
+                <span className="bg-primary text-white text-[10px] px-1.5 rounded-full">
+                  {favorites.length}
+                </span>
+              )}
+            </Link>
           </nav>
           <SettingsSheet />
         </div>
@@ -62,10 +74,34 @@ export function Header() {
                   البحث
                 </span>
               </Link>
+              <Link
+                to="/favorites"
+                className={`px-4 py-2 rounded text-sm transition-colors ${
+                  isFavorites ? "bg-white/20" : "hover:bg-white/10"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <Heart className="h-4 w-4" />
+                  المفضلة
+                  {favorites.length > 0 && (
+                    <span className="bg-white/30 text-xs px-1.5 rounded-full">
+                      {favorites.length}
+                    </span>
+                  )}
+                </span>
+              </Link>
             </nav>
 
             {/* Mobile nav */}
             <div className="flex md:hidden items-center gap-2">
+              <Link to="/favorites" className="p-2 hover:bg-white/10 rounded transition-colors relative">
+                <Heart className="h-5 w-5" />
+                {favorites.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-white text-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                    {favorites.length}
+                  </span>
+                )}
+              </Link>
               <Link to="/search" className="p-2 hover:bg-white/10 rounded transition-colors">
                 <Search className="h-5 w-5" />
               </Link>
