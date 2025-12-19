@@ -10,8 +10,10 @@ import { TafsirTabs } from "@/components/TafsirTabs";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { SurahSelector } from "@/components/SurahSelector";
 import { AyahSelector } from "@/components/AyahSelector";
+import { ReadingProgressBar } from "@/components/ReadingProgressBar";
 import { Button } from "@/components/ui/button";
 import { useSurah } from "@/hooks/useQuranData";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { toArabicNumerals, getSurahSlug } from "@/lib/quran-api";
 
 const AyahPage = () => {
@@ -28,11 +30,12 @@ const AyahPage = () => {
   }
 
   const { data: surah, isLoading, error, refetch } = useSurah(surahNumber);
+  const { markAsRead, percentage, totalRead, totalAyahs } = useReadingProgress();
 
   const ayah = surah?.ayahs.find((a) => a.numberInSurah === ayahNumber);
   const isValidAyah = surah && ayahNumber >= 1 && ayahNumber <= surah.numberOfAyahs;
 
-  // Save reading position when viewing an ayah
+  // Save reading position and mark as read when viewing an ayah
   useEffect(() => {
     if (surah && ayah && isValidAyah) {
       const position = {
@@ -43,8 +46,11 @@ const AyahPage = () => {
       };
       localStorage.setItem('lastReadPosition', JSON.stringify(position));
       localStorage.setItem('lastVisitedSurah', surahNumber.toString());
+      
+      // Mark ayah as read for progress tracking
+      markAsRead(surahNumber, ayahNumber);
     }
-  }, [surah, ayah, surahNumber, ayahNumber, isValidAyah]);
+  }, [surah, ayah, surahNumber, ayahNumber, isValidAyah, markAsRead]);
 
   // Navigation logic
   const hasPrevAyah = ayahNumber > 1;
@@ -103,9 +109,16 @@ const AyahPage = () => {
                   <span className="text-foreground font-semibold">الآية {toArabicNumerals(ayahNumber)}</span>
                 </nav>
                 
-                {/* Navigation Selectors */}
+                {/* Navigation Selectors + Reading Progress */}
                 {surah && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    <ReadingProgressBar 
+                      percentage={percentage}
+                      totalRead={totalRead}
+                      totalAyahs={totalAyahs}
+                      compact
+                      className="hidden sm:flex"
+                    />
                     <SurahSelector 
                       currentSurahNumber={surahNumber} 
                       currentSurahName={surah.name}

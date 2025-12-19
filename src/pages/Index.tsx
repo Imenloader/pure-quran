@@ -6,7 +6,9 @@ import { Footer } from "@/components/Footer";
 import { SearchBar } from "@/components/SearchBar";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { ReadingProgressBar } from "@/components/ReadingProgressBar";
 import { useAllSurahs } from "@/hooks/useQuranData";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { searchSurahs, toArabicNumerals, Surah } from "@/lib/quran-api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,7 +25,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: surahs, isLoading, error, refetch } = useAllSurahs();
   const navigate = useNavigate();
-  
+  const { percentage, totalRead, totalAyahs } = useReadingProgress();
   // Get the last visited surah from localStorage
   const [lastVisitedSurah, setLastVisitedSurah] = useState<number | null>(null);
   const [lastReadPosition, setLastReadPosition] = useState<LastReadPosition | null>(null);
@@ -104,6 +106,17 @@ const Index = () => {
                         {lastReadPosition.surahName} - الآية {toArabicNumerals(lastReadPosition.ayahNumber)}
                       </span>
                     </Button>
+                  </div>
+                )}
+                
+                {/* Reading Progress */}
+                {totalRead > 0 && (
+                  <div className="mt-4 max-w-md mx-auto">
+                    <ReadingProgressBar
+                      percentage={percentage}
+                      totalRead={totalRead}
+                      totalAyahs={totalAyahs}
+                    />
                   </div>
                 )}
               </div>
