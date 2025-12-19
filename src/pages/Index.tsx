@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -9,21 +9,46 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { useAllSurahs } from "@/hooks/useQuranData";
 import { searchSurahs, toArabicNumerals, Surah } from "@/lib/quran-api";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { History } from "lucide-react";
+
+interface LastReadPosition {
+  surahNumber: number;
+  surahName: string;
+  ayahNumber: number;
+  timestamp: number;
+}
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: surahs, isLoading, error, refetch } = useAllSurahs();
-  const location = useLocation();
+  const navigate = useNavigate();
   
   // Get the last visited surah from localStorage
   const [lastVisitedSurah, setLastVisitedSurah] = useState<number | null>(null);
+  const [lastReadPosition, setLastReadPosition] = useState<LastReadPosition | null>(null);
   
   useEffect(() => {
     const saved = localStorage.getItem('lastVisitedSurah');
     if (saved) {
       setLastVisitedSurah(parseInt(saved, 10));
     }
+    
+    const lastRead = localStorage.getItem('lastReadPosition');
+    if (lastRead) {
+      try {
+        setLastReadPosition(JSON.parse(lastRead));
+      } catch (e) {
+        console.error('Error parsing last read position:', e);
+      }
+    }
   }, []);
+
+  const handleContinueReading = () => {
+    if (lastReadPosition) {
+      navigate(`/surah/${lastReadPosition.surahNumber}/ayah/${lastReadPosition.ayahNumber}`);
+    }
+  };
 
   const filteredSurahs = useMemo(() => {
     if (!surahs) return [];
@@ -64,6 +89,23 @@ const Index = () => {
                     placeholder="ابحث عن سورة..."
                   />
                 </div>
+                
+                {/* Continue Reading Button */}
+                {lastReadPosition && (
+                  <div className="mt-4">
+                    <Button
+                      onClick={handleContinueReading}
+                      variant="outline"
+                      className="gap-2 border-amber-500/50 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-950/40"
+                    >
+                      <History className="h-4 w-4" />
+                      <span className="font-arabic">متابعة القراءة:</span>
+                      <span className="font-arabic font-semibold">
+                        {lastReadPosition.surahName} - الآية {toArabicNumerals(lastReadPosition.ayahNumber)}
+                      </span>
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
