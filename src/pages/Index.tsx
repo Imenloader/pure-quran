@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -13,6 +13,17 @@ import { cn } from "@/lib/utils";
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: surahs, isLoading, error, refetch } = useAllSurahs();
+  const location = useLocation();
+  
+  // Get the last visited surah from localStorage
+  const [lastVisitedSurah, setLastVisitedSurah] = useState<number | null>(null);
+  
+  useEffect(() => {
+    const saved = localStorage.getItem('lastVisitedSurah');
+    if (saved) {
+      setLastVisitedSurah(parseInt(saved, 10));
+    }
+  }, []);
 
   const filteredSurahs = useMemo(() => {
     if (!surahs) return [];
@@ -73,7 +84,11 @@ const Index = () => {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3 max-w-4xl mx-auto">
                 {filteredSurahs.map((surah) => (
-                  <SurahGridItem key={surah.number} surah={surah} />
+                  <SurahGridItem 
+                    key={surah.number} 
+                    surah={surah} 
+                    isActive={surah.number === lastVisitedSurah}
+                  />
                 ))}
               </div>
             )}
@@ -96,19 +111,27 @@ const Index = () => {
 // Surah Grid Item Component
 interface SurahGridItemProps {
   surah: Surah;
+  isActive?: boolean;
 }
 
-function SurahGridItem({ surah }: SurahGridItemProps) {
+function SurahGridItem({ surah, isActive }: SurahGridItemProps) {
+  const handleClick = () => {
+    localStorage.setItem('lastVisitedSurah', surah.number.toString());
+  };
+
   return (
     <Link
       to={`/surah/${surah.number}`}
+      onClick={handleClick}
       className={cn(
         "block text-center py-3 px-2 rounded-lg",
-        "bg-card border border-border",
-        "hover:border-primary hover:bg-primary/5",
+        "bg-card border-2",
         "transition-all duration-200",
         "font-arabic text-sm md:text-base",
-        "focus:outline-none focus:ring-2 focus:ring-primary/20"
+        "focus:outline-none focus:ring-2 focus:ring-primary/20",
+        isActive 
+          ? "border-amber-500 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 font-semibold shadow-md" 
+          : "border-border hover:border-primary hover:bg-primary/5"
       )}
     >
       {surah.name}
