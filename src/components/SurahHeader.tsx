@@ -6,12 +6,20 @@ interface SurahHeaderProps {
 
 export function SurahHeader({ surah }: SurahHeaderProps) {
   return (
-    <header className="text-center mb-6 fade-enter">
-      <div className="bg-primary text-primary-foreground py-6 px-4 rounded-lg mb-4">
-        <h1 className="font-arabic text-2xl md:text-3xl font-bold mb-2">
+    <header className="text-center mb-8 fade-enter">
+      {/* Surah Name - Dignified */}
+      <div className="py-8">
+        <h1 className="font-amiri text-4xl md:text-5xl font-bold text-foreground mb-4">
           {surah.name}
         </h1>
-        <p className="text-sm text-white/80">
+        
+        {/* Elegant divider */}
+        <div className="divider-ornament max-w-xs mx-auto mb-4">
+          <span className="text-primary text-lg">❖</span>
+        </div>
+        
+        {/* Metadata */}
+        <p className="text-muted-foreground font-arabic text-sm">
           {toArabicNumerals(surah.numberOfAyahs)} آية · {getRevelationTypeArabic(surah.revelationType)}
         </p>
       </div>

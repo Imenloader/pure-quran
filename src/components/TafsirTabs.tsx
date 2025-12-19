@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle } from "lucide-react";
 import { getArabicTafsirForAyah, ARABIC_TAFSIRS } from "@/lib/quran-api";
 
@@ -9,29 +11,49 @@ interface TafsirTabsProps {
 }
 
 export function TafsirTabs({ surahNumber, ayahNumber }: TafsirTabsProps) {
+  const [activeTab, setActiveTab] = useState(ARABIC_TAFSIRS[0].id.toString());
+
   return (
-    <section className="space-y-6 fade-enter" style={{ animationDelay: "0.2s" }}>
-      {/* Section Header */}
-      <div className="bg-primary text-primary-foreground py-3 px-4 rounded-lg text-center">
-        <h2 className="font-arabic text-lg font-bold">التفسير</h2>
+    <section className="fade-enter" style={{ animationDelay: "0.2s" }}>
+      {/* Section Title */}
+      <div className="text-center mb-6">
+        <h2 className="font-amiri text-2xl font-bold text-foreground mb-2">التفسير</h2>
+        <div className="divider-ornament max-w-xs mx-auto">
+          <span className="text-primary">✦</span>
+        </div>
       </div>
 
-      {/* All Tafsirs - Vertical Layout */}
-      {ARABIC_TAFSIRS.map((tafsir) => (
-        <TafsirSection
-          key={tafsir.id}
-          surahNumber={surahNumber}
-          ayahNumber={ayahNumber}
-          tafsirId={tafsir.id}
-          tafsirName={tafsir.name}
-          tafsirAuthor={tafsir.author}
-        />
-      ))}
+      {/* Tabs for Arabic Tafsirs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" dir="rtl">
+        <TabsList className="w-full flex flex-wrap justify-center gap-1 bg-secondary/50 p-2 rounded-lg mb-6 h-auto">
+          {ARABIC_TAFSIRS.map((tafsir) => (
+            <TabsTrigger
+              key={tafsir.id}
+              value={tafsir.id.toString()}
+              className="font-arabic text-sm px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all"
+            >
+              {tafsir.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {ARABIC_TAFSIRS.map((tafsir) => (
+          <TabsContent key={tafsir.id} value={tafsir.id.toString()} className="mt-0">
+            <TafsirContent
+              surahNumber={surahNumber}
+              ayahNumber={ayahNumber}
+              tafsirId={tafsir.id}
+              tafsirName={tafsir.name}
+              tafsirAuthor={tafsir.author}
+            />
+          </TabsContent>
+        ))}
+      </Tabs>
     </section>
   );
 }
 
-interface TafsirSectionProps {
+interface TafsirContentProps {
   surahNumber: number;
   ayahNumber: number;
   tafsirId: number;
@@ -39,7 +61,7 @@ interface TafsirSectionProps {
   tafsirAuthor: string;
 }
 
-function TafsirSection({ surahNumber, ayahNumber, tafsirId, tafsirName, tafsirAuthor }: TafsirSectionProps) {
+function TafsirContent({ surahNumber, ayahNumber, tafsirId, tafsirName, tafsirAuthor }: TafsirContentProps) {
   const {
     data: tafsir,
     isLoading,
@@ -53,14 +75,13 @@ function TafsirSection({ surahNumber, ayahNumber, tafsirId, tafsirName, tafsirAu
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="bg-secondary py-2 px-4 border-b border-border">
-          <h3 className="font-arabic font-bold text-foreground">{tafsirName}</h3>
-        </div>
-        <div className="p-4 space-y-3" dir="rtl">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-[95%]" />
-          <Skeleton className="h-4 w-[90%]" />
+      <div className="bg-card border border-border rounded-lg p-6 md:p-8">
+        <div className="space-y-4">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-[95%]" />
+          <Skeleton className="h-5 w-[90%]" />
+          <Skeleton className="h-5 w-[85%]" />
+          <Skeleton className="h-5 w-[80%]" />
         </div>
       </div>
     );
@@ -68,14 +89,9 @@ function TafsirSection({ surahNumber, ayahNumber, tafsirId, tafsirName, tafsirAu
 
   if (error || !tafsir) {
     return (
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="bg-secondary py-2 px-4 border-b border-border">
-          <h3 className="font-arabic font-bold text-foreground">{tafsirName}</h3>
-        </div>
-        <div className="flex items-center justify-center gap-2 text-muted-foreground p-6" dir="rtl">
-          <AlertCircle className="h-4 w-4 text-amber-500" />
-          <p className="font-arabic text-sm">هذا التفسير غير متوفر لهذه الآية.</p>
-        </div>
+      <div className="bg-card border border-border rounded-lg p-8 text-center">
+        <AlertCircle className="h-8 w-8 text-muted-foreground/50 mx-auto mb-4" />
+        <p className="font-arabic text-muted-foreground">هذا التفسير غير متوفر لهذه الآية.</p>
       </div>
     );
   }
@@ -91,18 +107,29 @@ function TafsirSection({ surahNumber, ayahNumber, tafsirId, tafsirName, tafsirAu
     .replace(/\s+/g, " ")
     .trim();
 
+  // Split into paragraphs for better readability
+  const paragraphs = cleanText.split(/[.،](?=\s)/).filter(p => p.trim().length > 50);
+
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden">
-      {/* Tafsir Header */}
-      <div className="bg-secondary py-2 px-4 border-b border-border flex items-center justify-between">
-        <h3 className="font-arabic font-bold text-foreground">{tafsirName}</h3>
-        <span className="text-xs text-muted-foreground">{tafsirAuthor}</span>
+      {/* Header */}
+      <div className="bg-secondary/50 py-3 px-4 md:px-6 border-b border-border flex items-center justify-between">
+        <h3 className="font-amiri font-bold text-foreground text-lg">{tafsirName}</h3>
+        <span className="text-xs text-muted-foreground font-arabic">{tafsirAuthor}</span>
       </div>
       
-      {/* Tafsir Content */}
-      <div className="p-4 md:p-6" dir="rtl">
-        <div className="tafsir-content leading-loose text-foreground/90">
-          {cleanText}
+      {/* Content */}
+      <div className="p-6 md:p-8" dir="rtl">
+        <div className="tafsir-content">
+          {paragraphs.length > 1 ? (
+            paragraphs.map((paragraph, index) => (
+              <p key={index} className="mb-4 last:mb-0">
+                {paragraph.trim()}{index < paragraphs.length - 1 ? '.' : ''}
+              </p>
+            ))
+          ) : (
+            <p>{cleanText}</p>
+          )}
         </div>
       </div>
     </div>

@@ -71,10 +71,15 @@ export default {
           border: "hsl(var(--table-border))",
           hover: "hsl(var(--table-hover))",
         },
+        ayah: {
+          highlight: "hsl(var(--ayah-highlight))",
+        },
+        divider: "hsl(var(--divider))",
       },
       fontFamily: {
         quran: ["'Amiri Quran'", "'Amiri'", "serif"],
         arabic: ["'Noto Naskh Arabic'", "'Amiri'", "serif"],
+        amiri: ["'Amiri'", "serif"],
         serif: ["'Noto Naskh Arabic'", "Georgia", "serif"],
       },
       borderRadius: {
