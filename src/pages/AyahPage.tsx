@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { TafsirTabs } from "@/components/TafsirTabs";
+import { AudioPlayer } from "@/components/AudioPlayer";
 import { Button } from "@/components/ui/button";
 import { useSurah } from "@/hooks/useQuranData";
 import { toArabicNumerals, getSurahSlug } from "@/lib/quran-api";
@@ -99,7 +100,7 @@ const AyahPage = () => {
                 </header>
 
                 {/* Ayah Display - Large Centered */}
-                <div className="bg-card rounded-xl border border-border p-8 md:p-12 mb-8 fade-enter text-center" style={{ animationDelay: "0.1s" }}>
+                <div className="bg-card rounded-xl border border-border p-8 md:p-12 mb-6 fade-enter text-center" style={{ animationDelay: "0.1s" }}>
                   <p className="quran-text-large mb-6">
                     {ayah.text}
                   </p>
@@ -108,13 +109,22 @@ const AyahPage = () => {
                   </span>
                 </div>
 
+                {/* Audio Player */}
+                <div className="mb-8 fade-enter" style={{ animationDelay: "0.15s" }}>
+                  <AudioPlayer 
+                    surahNumber={surahNumber} 
+                    ayahNumber={ayahNumber}
+                    totalAyahs={surah.numberOfAyahs}
+                  />
+                </div>
+
                 {/* Elegant divider */}
-                <div className="divider-ornament max-w-sm mx-auto mb-8 fade-enter" style={{ animationDelay: "0.15s" }}>
+                <div className="divider-ornament max-w-sm mx-auto mb-8 fade-enter" style={{ animationDelay: "0.2s" }}>
                   <span className="text-primary text-sm">❖</span>
                 </div>
 
                 {/* Ayah Navigation */}
-                <nav className="flex items-center justify-between mb-10 fade-enter" style={{ animationDelay: "0.15s" }}>
+                <nav className="flex items-center justify-between mb-10 fade-enter" style={{ animationDelay: "0.25s" }}>
                   {getNextLink() ? (
                     <Link to={getNextLink()!}>
                       <Button variant="outline" size="sm" className="gap-2 font-arabic">
