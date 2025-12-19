@@ -1,37 +1,15 @@
 // Arabic Smart Search Utilities
 // Handles Arabic text normalization, diacritics removal, and intelligent matching
 
-// Arabic diacritics (tashkeel) to remove
-const ARABIC_DIACRITICS = /[\u064B-\u065F\u0670\u06D6-\u06ED]/g;
-
-// Alef variants normalization map
-const ALEF_VARIANTS = /[أإآٱ]/g;
-const ALEF_NORMAL = 'ا';
-
-// Yaa/Alef Maqsura normalization
-const YAA_VARIANTS = /[ى]/g;
-const YAA_NORMAL = 'ي';
-
-// Taa Marbuta (optional, conservative approach)
-const TAA_MARBUTA = /ة/g;
-
-// Waw with hamza
-const WAW_HAMZA = /ؤ/g;
-
-// Yaa with hamza
-const YAA_HAMZA = /ئ/g;
-
-// Hamza variants
-const HAMZA_VARIANTS = /[ء]/g;
-
-// Kashida/Tatweel removal
-const KASHIDA = /ـ/g;
-
-// Common Arabic punctuation and symbols to remove
-const ARABIC_SYMBOLS = /[۩۞۝]/g;
-
-// Quran-specific marks
-const QURAN_MARKS = /[\u06D6-\u06ED]/g;
+/**
+ * Remove Arabic diacritics (tashkeel) from text
+ * Covers: Fatha, Damma, Kasra, Sukun, Shadda, Tanween, etc.
+ */
+function removeDiacritics(text: string): string {
+  // Arabic diacritics range: U+064B to U+0652
+  // Also includes: Superscript Alef (U+0670), Small letters, etc.
+  return text.replace(/[\u064B-\u0652\u0670\u0610-\u061A\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g, '');
+}
 
 /**
  * Normalize Arabic text for search matching
@@ -40,22 +18,27 @@ const QURAN_MARKS = /[\u06D6-\u06ED]/g;
 export function normalizeArabicText(text: string): string {
   if (!text) return '';
   
-  return text
-    // Remove diacritics (tashkeel)
-    .replace(ARABIC_DIACRITICS, '')
-    // Remove Quran-specific marks
-    .replace(QURAN_MARKS, '')
-    // Remove kashida
-    .replace(KASHIDA, '')
-    // Remove Arabic symbols
-    .replace(ARABIC_SYMBOLS, '')
-    // Normalize Alef variants
-    .replace(ALEF_VARIANTS, ALEF_NORMAL)
-    // Normalize Yaa/Alef Maqsura
-    .replace(YAA_VARIANTS, YAA_NORMAL)
-    // Trim and normalize whitespace
-    .replace(/\s+/g, ' ')
-    .trim();
+  let normalized = text;
+  
+  // Remove diacritics (tashkeel)
+  normalized = removeDiacritics(normalized);
+  
+  // Remove kashida/tatweel
+  normalized = normalized.replace(/ـ/g, '');
+  
+  // Remove Quran-specific symbols
+  normalized = normalized.replace(/[۩۞۝۟۠ۖۗۘۙۚۛ]/g, '');
+  
+  // Normalize Alef variants (أ إ آ ٱ → ا)
+  normalized = normalized.replace(/[أإآٱ]/g, 'ا');
+  
+  // Normalize Alef Maqsura to Yaa (ى → ي)
+  normalized = normalized.replace(/ى/g, 'ي');
+  
+  // Normalize whitespace
+  normalized = normalized.replace(/\s+/g, ' ').trim();
+  
+  return normalized;
 }
 
 /**
@@ -65,7 +48,7 @@ export function normalizeArabicText(text: string): string {
 export function normalizeArabicTextExtended(text: string): string {
   return normalizeArabicText(text)
     // Normalize Taa Marbuta to Haa
-    .replace(TAA_MARBUTA, 'ه');
+    .replace(/ة/g, 'ه');
 }
 
 /**
